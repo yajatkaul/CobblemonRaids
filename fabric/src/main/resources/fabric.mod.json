@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "cobblemon_raids",
+  "version": "${version}",
+  "name": "Cobblemon:Raids",
+  "description": "",
+  "authors": [
+    "Yajat"
+  ],
+  "license": "MIT License",
+  "icon": "assets/example/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.cobblemon.fabric.raids.CobblemonRaidsFabric"
+    ]
+  },
+  "mixins": [
+    "mixins.cobblemon_raids-common.json"
+  ],
+  "depends": {
+    "minecraft": "1.21.1",
+    "cobblemon": ">=1.6.0"
+  }
+}

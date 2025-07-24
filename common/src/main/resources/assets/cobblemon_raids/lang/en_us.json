@@ -1,0 +1,5 @@
+{
+  "raid.phase.battle": "Battle Boss - Time Remaining : %d",
+  "raid.phase.prepare": "Prepare Boss - Time Remaining : %d",
+  "raid.phase.catch": "Catch Boss - Time Remaining : %d"
+}
