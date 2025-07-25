@@ -6,6 +6,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 @Mod(CobblemonRaids.MOD_ID)
 public class CobblemonRaidsNeo {
@@ -23,5 +26,15 @@ public class CobblemonRaidsNeo {
     @SubscribeEvent
     public void onServerTick(ServerTickEvent.Post event) {
         CobblemonRaids.onServerTickEnd(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onServerStart(ServerStartedEvent event) {
+        CobblemonRaids.onServerStarted(event.getServer());
+    }
+
+    @SubscribeEvent
+    public void onServerStart(ServerStoppedEvent event) {
+        CobblemonRaids.onServerClosed(event.getServer());
     }
 }

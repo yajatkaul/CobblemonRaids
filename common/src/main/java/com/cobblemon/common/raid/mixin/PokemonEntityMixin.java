@@ -1,11 +1,9 @@
 package com.cobblemon.common.raid.mixin;
 
-import com.cobblemon.common.raid.CobblemonRaids;
-import com.cobblemon.common.raid.RaidBoss;
-import com.cobblemon.common.raid.RaidManager;
+import com.cobblemon.common.raid.managers.RaidBoss;
+import com.cobblemon.common.raid.managers.RaidManager;
 import com.cobblemon.mod.common.entity.PoseType;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
-import com.cobblemon.mod.common.pokemon.Pokemon;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -35,8 +33,6 @@ public class PokemonEntityMixin {
         int raidBossPhase = pokemon.getEntityData().get(RaidManager.RAID_BOSS_PHASE);
         if (raidBossPhase == RaidManager.BATTLE_PHASE) {
             cir.setReturnValue(true);
-        } else if (raidBossPhase == RaidManager.CATCH_PHASE) {
-            cir.setReturnValue(false);
         }
     }
 
@@ -65,23 +61,13 @@ public class PokemonEntityMixin {
 
         int raidBossPhase = pokemonEntity.getEntityData().get(RaidManager.RAID_BOSS_PHASE);
         if ((raidBossPhase == RaidManager.BATTLE_PHASE || raidBossPhase == RaidManager.PREPARE_PHASE || raidBossPhase == RaidManager.CATCH_PHASE) && pokemonEntity.getPokemon().getPersistentData().getBoolean("is_raid_boss")) {
-            if(raidBossPhase == 0){
+            if (raidBossPhase == RaidManager.BATTLE_PHASE) {
                 RaidBoss raid = RaidManager.getRaid(pokemonEntity.getPokemon().getUuid());
-                if(raid != null){
+                if (raid != null) {
                     RaidManager.startRaid((ServerPlayer) player, raid);
                 }
             }
             cir.setReturnValue(false);
-        }
-    }
-
-    @Inject(method = "isUncatchable", at = @At("HEAD"), cancellable = true)
-    private void canCatch(CallbackInfoReturnable<Boolean> cir) {
-        PokemonEntity pokemonEntity = (PokemonEntity) (Object) this;
-
-        int raidBossPhase = pokemonEntity.getEntityData().get(RaidManager.RAID_BOSS_PHASE);
-        if ((raidBossPhase == RaidManager.BATTLE_PHASE || raidBossPhase == RaidManager.PREPARE_PHASE) && pokemonEntity.getPokemon().getPersistentData().getBoolean("is_raid_boss")) {
-            cir.setReturnValue(true);
         }
     }
 }

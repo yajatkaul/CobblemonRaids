@@ -12,6 +12,8 @@ architectury {
 loom {
     enableTransitiveAccessWideners.set(true)
     silentMojangMappingsLicense()
+
+    accessWidenerPath.set(file("../common/src/main/resources/cobblemon_raids.accesswidener"))
 }
 
 repositories {

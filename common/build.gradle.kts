@@ -9,6 +9,8 @@ architectury {
 
 loom {
     silentMojangMappingsLicense()
+
+    accessWidenerPath.set(file("src/main/resources/cobblemon_raids.accesswidener"))
 }
 
 dependencies {

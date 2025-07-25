@@ -1,4 +1,4 @@
-package com.cobblemon.common.raid;
+package com.cobblemon.common.raid.managers;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
@@ -6,16 +6,14 @@ import com.cobblemon.mod.common.api.drop.DropTable;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.battles.BattleBuilder;
 import com.cobblemon.mod.common.battles.BattleFormat;
-import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
-import com.cobblemon.mod.common.net.messages.client.animation.PlayPosableAnimationPacket;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty;
 import kotlin.Unit;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -24,22 +22,38 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class RaidManager {
     private static final Map<UUID, RaidBoss> raidMap = new HashMap<>();
 
-    public static void startRaid(ServerPlayer player, RaidBoss raid) {
-        Pokemon boss = raid.getBoss();
+    public static void joinRaid(ServerPlayer player, RaidBoss raid) {
         raid.addPlayer(player);
+        raid.placePlayer(player);
+    }
+
+    public static void startRaid(ServerPlayer player, RaidBoss raid) {
+        //TODO join shouldnt be from here
+        joinRaid(player, raid);
+
+        int partyIndex = canBattle(player);
+        if (partyIndex == -1) {
+            player.sendSystemMessage(Component.translatable("raid.alert.skill_issue")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+
+        Pokemon boss = raid.getBoss();
 
         PokemonEntity bossCloneEntity = createClone(boss, player);
 
         PlayerPartyStore party = Cobblemon.INSTANCE.getStorage().getParty(player);
         BattleBuilder.INSTANCE.pve(player,
                 bossCloneEntity,
-                //TODO check party before starting
-                party.get(0).getUuid(),
+                party.get(partyIndex).getUuid(),
                 BattleFormat.Companion.getGEN_9_SINGLES(),
                 false,
                 false,
@@ -48,15 +62,11 @@ public class RaidManager {
         ).ifSuccessful((battle -> {
             battle.getOnEndHandlers().add((battleEnd) -> {
                 for (BattleActor actor : battleEnd.getActors()) {
-                    if(actor instanceof PokemonBattleActor pk) {
-                        if(pk.getPokemon().getOriginalPokemon().getPersistentData().getBoolean("is_raid_boss") && pk.getPokemon().getOriginalPokemon().isFainted()) {
+                    if (actor instanceof PokemonBattleActor pk) {
+                        if (pk.getPokemon().getOriginalPokemon().getPersistentData().getBoolean("is_raid_boss") && pk.getPokemon().getOriginalPokemon().isFainted()) {
                             raid.damagePerWin();
-                            if(!raid.getDefeated()){
-                                boss.getEntity().after(0.6f, () -> {
-                                    startRaid(player, raid);
-                                    return Unit.INSTANCE;
-                                });
-                            }
+                        } else if (pk.getPokemon().getOriginalPokemon().getPersistentData().getBoolean("is_raid_boss") && !pk.getPokemon().getOriginalPokemon().isFainted()) {
+                            pk.getEntity().discard();
                         }
                     }
                 }
@@ -64,6 +74,21 @@ public class RaidManager {
             });
             return Unit.INSTANCE;
         }));
+    }
+
+    public static int canBattle(ServerPlayer player) {
+        PlayerPartyStore playerPartyStore = Cobblemon.INSTANCE.getStorage().getParty(player);
+        if (playerPartyStore.occupied() == 0) {
+            return -1;
+        }
+        int index = 0;
+        for (Pokemon pokemon : playerPartyStore) {
+            if (!pokemon.isFainted()) {
+                return index;
+            }
+            index++;
+        }
+        return -1;
     }
 
     public static final int NOT_A_BOSS = -1;
