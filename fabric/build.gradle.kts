@@ -35,6 +35,7 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit_version")}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${property("junit_version")}")
+    modImplementation("dev.architectury:architectury:${property("architectury_api_version")}")
 }
 
 tasks.getByName<Test>("test") {

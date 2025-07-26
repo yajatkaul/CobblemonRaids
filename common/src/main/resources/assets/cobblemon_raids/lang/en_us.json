@@ -1,6 +1,7 @@
 {
   "raid.phase.battle": "Battle Boss - Time Remaining : %d",
-  "raid.phase.prepare": "Prepare Boss - Time Remaining : %d",
-  "raid.phase.catch": "Catch Boss - Time Remaining : %d",
-  "raid.alert.skill_issue": "You do not have any pokemon to battle with!"
+  "raid.phase.prepare": "Prepare To Catch - Time Remaining : %d",
+  "raid.phase.catch": "Catch The Boss - Time Remaining : %d",
+  "raid.alert.skill_issue": "You do not have any pokemon to battle with!",
+  "raid.phase.pre_battle": "Get Ready - Time Remaining : %d"
 }

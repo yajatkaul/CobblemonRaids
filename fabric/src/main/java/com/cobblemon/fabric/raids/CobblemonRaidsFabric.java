@@ -11,8 +11,9 @@ public class CobblemonRaidsFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        CommandRegistrationCallback.EVENT.register(CobblemonRaids::registerCommands);
         CobblemonRaids.register();
+
+        CommandRegistrationCallback.EVENT.register(CobblemonRaids::registerCommands);
 
         ServerTickEvents.END_SERVER_TICK.register(CobblemonRaids::onServerTickEnd);
 

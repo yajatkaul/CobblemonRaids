@@ -22,6 +22,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${property("junit_version")}")
 
     implementation("org.spongepowered:mixin:0.8.5")
+    modImplementation("dev.architectury:architectury:${property("architectury_api_version")}")
 }
 
 tasks.getByName<Test>("test") {

@@ -12,14 +12,19 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty;
 import kotlin.Unit;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
@@ -32,7 +37,6 @@ public class RaidManager {
 
     public static void joinRaid(ServerPlayer player, RaidBoss raid) {
         raid.addPlayer(player);
-        raid.placePlayer(player);
     }
 
     public static void startRaid(ServerPlayer player, RaidBoss raid) {
@@ -92,17 +96,33 @@ public class RaidManager {
     }
 
     public static final int NOT_A_BOSS = -1;
+    public static final int PRE_BATTLE_PHASE = 1;
     public static final int BATTLE_PHASE = 0;
     public static final int PREPARE_PHASE = 1;
     public static final int CATCH_PHASE = 2;
     public static final EntityDataAccessor<Integer> RAID_BOSS_PHASE =
             SynchedEntityData.defineId(PokemonEntity.class, EntityDataSerializers.INT);
 
-    public static void spawnBoss(ServerLevel level, RaidBoss raid, Vec3 pos) {
+    public static void tick(MinecraftServer server) {
+        //TODO
+//        ServerLevel level = server.getLevel(Level.OVERWORLD);
+//        if (level != null && server.getTickCount() % 160 == 0) { // every 8 seconds
+//            int x = level.getRandom().nextInt(100);
+//            int y = 64; // Surface level
+//            int z = level.getRandom().nextInt(100);
+//
+//            BlockPos pos = new BlockPos(x, y, z);
+//
+//            server.sendSystemMessage(Component.literal(pos.toString()));
+//            level.setBlock(pos, Blocks.GOLD_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+//        }
+    }
+
+    public static void spawnBoss(ServerLevel level, RaidBoss raid) {
         raid.getBoss().getPersistentData().putBoolean("is_raid_boss", true);
 
-        raid.getBoss().sendOut(level, pos, null, entity -> {
-            entity.getEntityData().set(RAID_BOSS_PHASE, BATTLE_PHASE);
+        raid.getBoss().sendOut(level, raid.getRaidDen().bossSpawn(), null, entity -> {
+            entity.getEntityData().set(RAID_BOSS_PHASE, PRE_BATTLE_PHASE);
             entity.setNoAi(true);
             return Unit.INSTANCE;
         });

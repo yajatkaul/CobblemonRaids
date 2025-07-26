@@ -25,12 +25,12 @@ import java.util.Set;
 
 public record RaidDen(String name,
                       Vec3 bossSpawn,
-                      List<Vec3> denSpawns,
+                      Vec3 denSpawn,
                       List<CatchSpawn> catchSpawns) {
     public static final Codec<RaidDen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("name").forGetter(RaidDen::name),
             Vec3.CODEC.fieldOf("bossSpawn").forGetter(RaidDen::bossSpawn),
-            Vec3.CODEC.listOf().fieldOf("denSpawns").forGetter(RaidDen::denSpawns),
+            Vec3.CODEC.fieldOf("denSpawn").forGetter(RaidDen::denSpawn),
             CatchSpawn.CODEC.listOf().fieldOf("catchSpawns").forGetter(RaidDen::catchSpawns)
     ).apply(instance, RaidDen::new));
 
