@@ -40,9 +40,6 @@ public class RaidManager {
     }
 
     public static void startRaid(ServerPlayer player, RaidBoss raid) {
-        //TODO join shouldnt be from here
-        joinRaid(player, raid);
-
         int partyIndex = canBattle(player);
         if (partyIndex == -1) {
             player.sendSystemMessage(Component.translatable("raid.alert.skill_issue")
