@@ -60,7 +60,7 @@ public class PokemonEntityMixin {
         PokemonEntity pokemonEntity = (PokemonEntity) (Object) this;
 
         int raidBossPhase = pokemonEntity.getEntityData().get(RaidManager.RAID_BOSS_PHASE);
-        if ((raidBossPhase == RaidManager.BATTLE_PHASE || raidBossPhase == RaidManager.PREPARE_PHASE || raidBossPhase == RaidManager.CATCH_PHASE) && pokemonEntity.getPokemon().getPersistentData().getBoolean("is_raid_boss")) {
+        if ((raidBossPhase == RaidManager.BATTLE_PHASE || raidBossPhase == RaidManager.PREPARE_PHASE) && pokemonEntity.getPokemon().getPersistentData().getBoolean("is_raid_boss")) {
             if (raidBossPhase == RaidManager.BATTLE_PHASE) {
                 RaidBoss raid = RaidManager.getRaid(pokemonEntity.getPokemon().getUuid());
                 if (raid != null) {

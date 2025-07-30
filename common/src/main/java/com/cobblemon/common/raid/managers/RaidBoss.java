@@ -1,6 +1,9 @@
 package com.cobblemon.common.raid.managers;
 
+import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.codecs.RaidDen;
+import com.cobblemon.common.raid.datacomponents.RaidDataComponents;
+import com.cobblemon.common.raid.items.RaidItems;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
@@ -8,14 +11,25 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty;
 import kotlin.Unit;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,6 +44,8 @@ public class RaidBoss {
     private boolean defeated = false;
     private final RaidDen raidDen;
     private boolean started = false;
+    private final ResourceKey<LootTable> lootTable;
+    private final int ballCount; //POKEBALL!!!!!
 
     public enum Phase {
         PRE_BATTLE,
@@ -38,19 +54,45 @@ public class RaidBoss {
         CATCH
     }
 
-    public Phase currentPhase = Phase.BATTLE;
-    private final long preBattleDuration = 10;
-    private final long battleDuration = 40;
-    private final long prepareDuration = 10;
-    private final long catchDuration = 30;
-    private long ticks = 0;
+    public Phase currentPhase;
+    private final long preBattleDuration;
+    private final long battleDuration;
+    private final long prepareDuration;
+    private final long catchDuration;
     private long phaseTime = 0;
     private final int maxPlayers;
-    private final BlockPos connectionBlock;
+
+    private static class Connection {
+        public final BlockPos connectionBlock;
+        public final ServerLevel level;
+
+        public Connection(BlockPos pos, ServerLevel level) {
+            this.connectionBlock = pos;
+            this.level = level;
+        }
+    }
+
+    private final Connection connection;
+
+    private boolean bossSpawned = false;
 
     private boolean ended = false;
 
-    public RaidBoss(int maxHealth, int baseScale, Pokemon bossEntity, int damagePerWin, RaidDen raidDen, int maxPlayers, BlockPos connectionBlock) {
+    public RaidBoss(int maxHealth,
+                    int baseScale,
+                    Pokemon bossEntity,
+                    int damagePerWin,
+                    RaidDen raidDen,
+                    int maxPlayers,
+                    ServerLevel level,
+                    BlockPos connectionBlock,
+                    long preBattleDuration,
+                    long battleDuration,
+                    long prepareDuration,
+                    long catchDuration,
+                    String lootTable,
+                    int ballCount
+    ) {
         this.maxHealth = maxHealth;
         this.baseScale = baseScale;
         this.boss = bossEntity;
@@ -58,7 +100,13 @@ public class RaidBoss {
         this.damagePerWin = damagePerWin;
         this.raidDen = raidDen;
         this.maxPlayers = maxPlayers;
-        this.connectionBlock = connectionBlock;
+        this.connection = new Connection(connectionBlock, level);
+        this.preBattleDuration = preBattleDuration;
+        this.battleDuration = battleDuration;
+        this.prepareDuration = prepareDuration;
+        this.catchDuration = catchDuration;
+        this.lootTable = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.tryParse(lootTable));
+        this.ballCount = ballCount;
 
         this.bossEvent = new ServerBossEvent(
                 Component.translatable("raid.phase.pre_battle", preBattleDuration - phaseTime),
@@ -67,16 +115,17 @@ public class RaidBoss {
         );
 
         this.boss.setScaleModifier(baseScale);
+        this.currentPhase = Phase.PRE_BATTLE;
         UncatchableProperty.INSTANCE.uncatchable().apply(this.boss);
+        RaidManager.addRaid(this);
+        DenManager.occupyDen(this.raidDen);
     }
 
-    public void tick() {
-        this.ticks++;
-        if (this.ticks % 20 == 0) {
+    public void tick(MinecraftServer server) {
+        if (server.getTickCount() % 20 == 0) {
             if (ended) {
                 return;
             }
-            this.ticks = 0;
             this.phaseTime++;
             stateUpdate();
         }
@@ -84,50 +133,65 @@ public class RaidBoss {
 
     public void endRaid() {
         RaidManager.endRaid(this.boss.getUuid());
+        DenManager.freeDen(this.raidDen);
         for (ServerPlayer player : this.activePlayers) {
-            removePlayer(player);
             PokemonBattle battle = Cobblemon.INSTANCE.getBattleRegistry().getBattleByParticipatingPlayerId(player.getUUID());
             if (battle != null) {
                 battle.end();
             }
+
+            removePlayer(player);
+
+            List<ItemStack> itemStack = resolveItemsToEject((ServerLevel) player.level(), this.lootTable, player.getOnPos(), player);
+            ItemStack stackToGive = new ItemStack(RaidItems.RAID_LOOT);
+            stackToGive.set(RaidDataComponents.LOOT_COMPONENT.get(), itemStack);
+            RaidUtils.giveItems(player, stackToGive);
         }
         this.ended = true;
     }
 
     private void stateUpdate() {
         if (this.currentPhase == Phase.BATTLE) {
-            this.bossEvent.setName(Component.translatable("raid.phase.battle", battleDuration - phaseTime));
+            this.bossEvent.setName(Component.translatable("raid.phase.battle", RaidUtils.formatTime((int) (battleDuration - phaseTime))));
             if (phaseTime == battleDuration) {
                 endRaid();
             }
         } else if (this.currentPhase == Phase.PRE_BATTLE) {
-            this.bossEvent.setName(Component.translatable("raid.phase.pre_battle", preBattleDuration - phaseTime));
+            this.bossEvent.setName(Component.translatable("raid.phase.pre_battle", RaidUtils.formatTime((int) (preBattleDuration - phaseTime))));
             this.bossEvent.setProgress(((float) preBattleDuration - (float) phaseTime) / preBattleDuration);
-            if(phaseTime == preBattleDuration) {
+            if (phaseTime == preBattleDuration) {
                 phaseTime = 0;
                 this.started = true;
-                this.getBoss().getEntity().level().removeBlock(connectionBlock, true);
+                if (this.activePlayers.isEmpty()) {
+                    endRaid();
+                    return;
+                }
+                PokemonEntity pokemonEntity = this.getBoss().getEntity();
+                if (pokemonEntity != null) {
+                    pokemonEntity.getEntityData().set(RaidManager.RAID_BOSS_PHASE, RaidManager.BATTLE_PHASE);
+                }
+                this.bossEvent.setProgress((float) this.currentHealth / this.maxHealth);
                 this.currentPhase = Phase.BATTLE;
-                this.boss.getEntity().getEntityData().set(RaidManager.RAID_BOSS_PHASE, RaidManager.BATTLE_PHASE);
+                this.connection.level.removeBlock(this.connection.connectionBlock, true);
             }
-        }  else if (this.currentPhase == Phase.PREPARE) {
-            this.bossEvent.setName(Component.translatable("raid.phase.prepare", prepareDuration - phaseTime));
-            this.bossEvent.setColor(BossEvent.BossBarColor.YELLOW);
-            this.bossEvent.setProgress(((float) prepareDuration - (float) phaseTime) / prepareDuration);
+        } else if (this.currentPhase == Phase.PREPARE) {
+            this.bossEvent.setName(Component.translatable("raid.phase.prepare", RaidUtils.formatTime((int) (prepareDuration - phaseTime))));
+            this.bossEvent.setProgress(((float) prepareDuration - phaseTime) / (float) prepareDuration);
             if (phaseTime == prepareDuration) {
                 phaseTime = 0;
                 UncatchableProperty.INSTANCE.catchable().apply(this.boss);
                 PokemonEntity bossEntity = this.boss.getEntity();
-                if(bossEntity != null){
+                if (bossEntity != null) {
                     bossEntity.discard();
                 }
                 placePlayersCatchPhase();
+                givePlayersBalls();
                 this.currentPhase = Phase.CATCH;
+                this.bossEvent.setColor(BossEvent.BossBarColor.GREEN);
             }
         } else if (this.currentPhase == Phase.CATCH) {
-            this.bossEvent.setName(Component.translatable("raid.phase.catch", catchDuration - phaseTime));
+            this.bossEvent.setName(Component.translatable("raid.phase.catch", RaidUtils.formatTime((int) (catchDuration - phaseTime))));
             this.bossEvent.setProgress((float) catchDuration - phaseTime / (float) catchDuration);
-            this.bossEvent.setColor(BossEvent.BossBarColor.GREEN);
             if (phaseTime == catchDuration) {
                 endRaid();
             }
@@ -136,7 +200,40 @@ public class RaidBoss {
 
     public void placePlayer(ServerPlayer player) {
         Vec3 spawns = this.raidDen.denSpawn();
-        player.teleportTo((ServerLevel) player.level(), spawns.x, spawns.y, spawns.z, player.getYRot(), player.getXRot());
+        player.teleportTo(player.getServer().getLevel(
+                        this.raidDen.denLevel()),
+                spawns.x,
+                spawns.y,
+                spawns.z,
+                player.getYRot(),
+                player.getXRot()
+        );
+    }
+
+    public void returnPlayer(ServerPlayer player) {
+        player.teleportTo(this.connection.level,
+                this.connection.connectionBlock.getX(),
+                this.connection.connectionBlock.getY() + 1,
+                this.connection.connectionBlock.getZ(),
+                player.getYRot(),
+                player.getXRot()
+        );
+    }
+
+    private void givePlayersBalls() {
+        //POKEBALLS!!! ^^^^^^^^^
+        ItemStack itemStack = new ItemStack(RaidItems.RAID_BALL, this.ballCount);
+        RaidUtils.giveItems(this.activePlayers, itemStack);
+    }
+
+
+    private void takePlayerBalls(ServerPlayer player) {
+        //POKEBALLS!!! ^^^^^^^^^
+        for(ItemStack stack: player.getInventory().items) {
+            if(stack.is(RaidItems.RAID_BALL.get())){
+                stack.shrink(stack.getCount());
+            }
+        }
     }
 
     public void placePlayersCatchPhase() {
@@ -146,6 +243,10 @@ public class RaidBoss {
             cloneBoss.sendOut((ServerLevel) player.level(), this.raidDen.catchSpawns().get(index.get()).bossSpawn(), null, (pokemonEntity -> {
                 pokemonEntity.getEntityData().set(RaidManager.RAID_BOSS_PHASE, RaidManager.CATCH_PHASE);
                 pokemonEntity.setNoAi(true);
+                pokemonEntity.after(catchDuration, () -> {
+                    pokemonEntity.discard();
+                    return Unit.INSTANCE;
+                });
                 return Unit.INSTANCE;
             }));
             Vec3 spawns = this.raidDen.catchSpawns().get(index.get()).playerSpawn();
@@ -160,6 +261,7 @@ public class RaidBoss {
         if (this.currentHealth <= 0) {
             this.boss.getEntity().getEntityData().set(RaidManager.RAID_BOSS_PHASE, RaidManager.PREPARE_PHASE);
             this.currentPhase = Phase.PREPARE;
+            this.bossEvent.setColor(BossEvent.BossBarColor.YELLOW);
             this.phaseTime = 0;
             this.defeated = true;
         }
@@ -178,10 +280,17 @@ public class RaidBoss {
     }
 
     public void addPlayer(ServerPlayer player) {
-        if(this.activePlayers.size() == this.maxPlayers || this.started){
+        if (this.activePlayers.size() == this.maxPlayers || this.started) {
             return;
         }
+
+        if (!bossSpawned) {
+            RaidManager.spawnBoss((ServerLevel) player.level(), this);
+            this.bossSpawned = true;
+        }
+
         this.activePlayers.add(player);
+        RaidManager.addPlayerToRaidMap(player, this);
         this.bossEvent.addPlayer(player);
         placePlayer(player);
     }
@@ -189,6 +298,9 @@ public class RaidBoss {
     public void removePlayer(ServerPlayer player) {
         this.activePlayers.remove(player);
         this.bossEvent.removePlayer(player);
+        takePlayerBalls(player);
+        RaidManager.removePlayerToRaidMap(player);
+        returnPlayer(player);
     }
 
     public Set<ServerPlayer> getPlayers() {
@@ -197,5 +309,19 @@ public class RaidBoss {
 
     public boolean getDefeated() {
         return this.defeated;
+    }
+
+    private static List<ItemStack> resolveItemsToEject(ServerLevel level,
+                                                       ResourceKey<LootTable> lootTableId,
+                                                       BlockPos pos,
+                                                       Player player) {
+        LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableId);
+        LootParams lootParams = (new LootParams.Builder(level))
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                .withLuck(player.getLuck())
+                .withParameter(LootContextParams.THIS_ENTITY, player)
+                .create(LootContextParamSets.VAULT);
+
+        return lootTable.getRandomItems(lootParams);
     }
 }

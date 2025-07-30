@@ -1,8 +1,17 @@
 package com.cobblemon.common.raid.managers;
 
+import com.cobblemon.common.raid.blocks.RaidBlocks;
+import com.cobblemon.common.raid.blocks.custom.blocks.RaidSpot;
+import com.cobblemon.common.raid.codecs.RaidData;
+import com.cobblemon.common.raid.codecs.RaidDen;
+import com.cobblemon.common.raid.codecs.Webhook;
+import com.cobblemon.common.raid.codecs.pokemon.RaidMon;
+import com.cobblemon.common.raid.config.CobblemonRaidsConfig;
+import com.cobblemon.common.raid.datapack.DatapackRegister;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.drop.DropTable;
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.battles.BattleBuilder;
 import com.cobblemon.mod.common.battles.BattleFormat;
@@ -24,19 +33,23 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.Vec3;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class RaidManager {
     private static final Map<UUID, RaidBoss> raidMap = new HashMap<>();
+    private static final Map<ServerPlayer, RaidBoss> serverRaidMap = new HashMap<>();
 
-    public static void joinRaid(ServerPlayer player, RaidBoss raid) {
-        raid.addPlayer(player);
+    public static void addPlayerToRaidMap(ServerPlayer player, RaidBoss raid) {
+        serverRaidMap.put(player, raid);
+    }
+
+    public static void removePlayerToRaidMap(ServerPlayer player) {
+        serverRaidMap.remove(player);
+    }
+
+    public static RaidBoss getRaidFromPlayer(ServerPlayer player) {
+        return serverRaidMap.get(player);
     }
 
     public static void startRaid(ServerPlayer player, RaidBoss raid) {
@@ -100,19 +113,53 @@ public class RaidManager {
     public static final EntityDataAccessor<Integer> RAID_BOSS_PHASE =
             SynchedEntityData.defineId(PokemonEntity.class, EntityDataSerializers.INT);
 
+    public static int raidCoolDown = CobblemonRaidsConfig.raidCoolDown * 20;
+
     public static void tick(MinecraftServer server) {
-        //TODO
-//        ServerLevel level = server.getLevel(Level.OVERWORLD);
-//        if (level != null && server.getTickCount() % 160 == 0) { // every 8 seconds
-//            int x = level.getRandom().nextInt(100);
-//            int y = 64; // Surface level
-//            int z = level.getRandom().nextInt(100);
-//
-//            BlockPos pos = new BlockPos(x, y, z);
-//
-//            server.sendSystemMessage(Component.literal(pos.toString()));
-//            level.setBlock(pos, Blocks.GOLD_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
-//        }
+        //TODO NOT SO FAST
+        ServerLevel level = server.getLevel(Level.OVERWORLD);
+        if (level != null && server.getTickCount() % raidCoolDown == 0) { // every raidCoolDown seconds
+            float roll = new Random().nextFloat() * 100;
+            if (roll >= CobblemonRaidsConfig.raidOccurrencePercentage) {
+                return;
+            }
+            RaidData raidData = SpawnUtils.spawnRaid();
+            Pokemon pokemon = PokemonProperties.Companion.parse(raidData.raidMon().pokemon()).create();
+
+            RaidDen den = DenManager.getRandomDen();
+
+            if (den == null || DatapackRegister.raidsRegistry.size() == 0) return;
+
+            BlockPos pos = SpawnUtils.getRaidSpawnPos(level);
+
+            RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT.get();
+
+            server.sendSystemMessage(Component.literal(pos.toString()));
+            level.setBlock(pos, raidSpot.defaultBlockState(), Block.UPDATE_ALL);
+
+            RaidBoss raid = new RaidBoss(raidData.maxHealth(),
+                    raidData.baseScale(),
+                    pokemon,
+                    raidData.damagePerWin(),
+                    den,
+                    raidData.maxPlayers(),
+                    level,
+                    pos,
+                    raidData.preBattleDuration(),
+                    raidData.battleDuration(),
+                    raidData.prepareDuration(),
+                    raidData.catchDuration(),
+                    raidData.lootTable(),
+                    raidData.totalBalls()
+            );
+
+            raidSpot.setRaid(raid);
+            Webhook webhook = Webhook.loadFromJson(server);
+            if (webhook != null) {
+                RaidMon raidMon = raidData.raidMon();
+                webhook.sendWebhook(raidMon.pokemonImage(), raidMon.name(), raidData.battleDuration());
+            }
+        }
     }
 
     public static void spawnBoss(ServerLevel level, RaidBoss raid) {
@@ -121,14 +168,17 @@ public class RaidManager {
         raid.getBoss().sendOut(level, raid.getRaidDen().bossSpawn(), null, entity -> {
             entity.getEntityData().set(RAID_BOSS_PHASE, PRE_BATTLE_PHASE);
             entity.setNoAi(true);
+            entity.setDrops(new DropTable());
             return Unit.INSTANCE;
         });
-
-        raidMap.put(raid.getBoss().getUuid(), raid);
     }
 
     public static RaidBoss getRaid(UUID uuid) {
         return raidMap.get(uuid);
+    }
+
+    public static void addRaid(RaidBoss raid) {
+        raidMap.put(raid.getBoss().getUuid(), raid);
     }
 
     public static Collection<RaidBoss> getAllRaids() {

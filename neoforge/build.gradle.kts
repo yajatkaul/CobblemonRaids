@@ -50,6 +50,12 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit_version")}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${property("junit_version")}")
     modImplementation("dev.architectury:architectury-neoforge:${property("architectury_api_version")}")
+
+    modImplementation("club.minnced:discord-webhooks:${property("discord_webhooks_version")}")
+    include("club.minnced:discord-webhooks:${property("discord_webhooks_version")}")
+
+    modImplementation("ca.landonjw.gooeylibs:neoforge:${property("gooeylibs_version")}")
+    include("ca.landonjw.gooeylibs:neoforge:${property("gooeylibs_version")}")
 }
 
 tasks.getByName<Test>("test") {
