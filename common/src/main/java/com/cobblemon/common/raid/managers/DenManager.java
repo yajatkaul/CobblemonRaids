@@ -2,11 +2,13 @@ package com.cobblemon.common.raid.managers;
 
 import com.cobblemon.common.raid.codecs.RaidDen;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class DenManager {
     private static final Set<RaidDen> raidDenList = new HashSet<>();
@@ -22,6 +24,16 @@ public class DenManager {
             return null;
         }
         return raidDenInactive.getFirst();
+    }
+
+    public static RaidDen getRandomDenByLevel(ServerLevel level) {
+        if (raidDenInactive.isEmpty()) {
+            return null;
+        }
+        return raidDenInactive.stream()
+                .filter(d -> d.denLevel() == level.dimension())
+                .findAny()
+                .orElse(null);
     }
 
     public static RaidDen getDenByName(String name) {

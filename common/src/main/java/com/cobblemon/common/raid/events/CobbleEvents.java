@@ -1,6 +1,5 @@
 package com.cobblemon.common.raid.events;
 
-import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.items.RaidItems;
 import com.cobblemon.common.raid.managers.RaidBoss;
 import com.cobblemon.common.raid.managers.RaidManager;
@@ -15,7 +14,6 @@ import kotlin.Unit;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.Item;
 
 public class CobbleEvents {
     public static void register() {
@@ -34,7 +32,7 @@ public class CobbleEvents {
 
         ServerPlayer player = event.getPlayer();
         RaidBoss raidBoss = RaidManager.getRaidFromPlayer(player);
-        if(raidBoss != null) {
+        if (raidBoss != null) {
             raidBoss.returnPlayer(player);
         }
 
@@ -43,18 +41,16 @@ public class CobbleEvents {
 
     private static Unit threwBall(ThrownPokeballHitEvent event) {
         Pokemon pokemon = event.getPokemon().getPokemon();
-        Item pokeBallItem = event.getPokeBall().getPokeBall().stack(1).getItem();
-//        PokeBall raidBall = ((PokeBallItem) RaidItems.RAID_BALL.get()).getPokeBall();
-
-        CobblemonRaids.LOGGER.info(pokeBallItem.toString());
+        PokeBall pokeBallItem = event.getPokeBall().getPokeBall();
+        PokeBall raidBall = ((PokeBallItem) RaidItems.RAID_BALL.get()).getPokeBall();
 
         if (pokemon.getPersistentData().contains("is_raid_boss")) {
-//            if (pokeBallItem != raidBall) {
-//                if (event.getPokeBall().getOwner() instanceof ServerPlayer player) {
-//                    player.sendSystemMessage(Component.translatable("raid.illegal_catch"));
-//                }
-//                event.cancel();
-//            }
+            if (pokeBallItem != raidBall) {
+                if (event.getPokeBall().getOwner() instanceof ServerPlayer player) {
+                    player.sendSystemMessage(Component.translatable("raid.illegal_catch"));
+                }
+                event.cancel();
+            }
         }
 
         return Unit.INSTANCE;

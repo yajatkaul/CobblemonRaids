@@ -9,7 +9,7 @@ public class PlayerEvents {
     public static void onPlayerLeave(ServerPlayer player) {
         RaidBoss raid = RaidManager.getRaidFromPlayer(player);
 
-        if(raid != null) {
+        if (raid != null) {
             raid.removePlayer(player);
         }
     }

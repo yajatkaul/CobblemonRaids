@@ -1,6 +1,5 @@
 package com.cobblemon.common.raid.managers;
 
-import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.codecs.RaidDen;
 import com.cobblemon.common.raid.datacomponents.RaidDataComponents;
 import com.cobblemon.common.raid.items.RaidItems;
@@ -229,8 +228,8 @@ public class RaidBoss {
 
     private void takePlayerBalls(ServerPlayer player) {
         //POKEBALLS!!! ^^^^^^^^^
-        for(ItemStack stack: player.getInventory().items) {
-            if(stack.is(RaidItems.RAID_BALL.get())){
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(RaidItems.RAID_BALL.get())) {
                 stack.shrink(stack.getCount());
             }
         }

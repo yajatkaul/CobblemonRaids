@@ -47,7 +47,7 @@ public class CobblemonRaidCommands {
         ServerPlayer player = context.getSource().getPlayer();
         RaidBoss raid = RaidManager.getRaidFromPlayer(player);
 
-        if(raid == null) {
+        if (raid == null) {
             player.sendSystemMessage(Component.translatable("cobblemon_raids.not_in_raid"));
             return 0;
         }

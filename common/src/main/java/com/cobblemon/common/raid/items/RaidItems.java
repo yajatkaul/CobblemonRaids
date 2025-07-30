@@ -3,15 +3,7 @@ package com.cobblemon.common.raid.items;
 import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.items.custom.items.RaidLoot;
 import com.cobblemon.common.raid.items.pokeballs.RaidBalls;
-import com.cobblemon.mod.common.Cobblemon;
-import com.cobblemon.mod.common.CobblemonItems;
-import com.cobblemon.mod.common.api.Priority;
-import com.cobblemon.mod.common.api.pokeball.PokeBalls;
-import com.cobblemon.mod.common.battles.BagItems;
 import com.cobblemon.mod.common.item.PokeBallItem;
-import com.cobblemon.mod.common.item.battle.BagItemLike;
-import com.cobblemon.mod.common.platform.PlatformRegistry;
-import com.cobblemon.mod.common.pokeball.PokeBall;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.core.registries.Registries;
@@ -42,5 +34,6 @@ public class RaidItems {
 
     public static void register() {
         ITEMS.register();
+        registerBalls();
     }
 }

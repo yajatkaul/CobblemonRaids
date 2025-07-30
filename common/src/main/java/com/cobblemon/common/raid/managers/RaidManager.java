@@ -1,5 +1,6 @@
 package com.cobblemon.common.raid.managers;
 
+import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.blocks.RaidBlocks;
 import com.cobblemon.common.raid.blocks.custom.blocks.RaidSpot;
 import com.cobblemon.common.raid.codecs.RaidData;
@@ -31,7 +32,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
 import java.util.*;
@@ -116,48 +116,56 @@ public class RaidManager {
     public static int raidCoolDown = CobblemonRaidsConfig.raidCoolDown * 20;
 
     public static void tick(MinecraftServer server) {
-        //TODO NOT SO FAST
-        ServerLevel level = server.getLevel(Level.OVERWORLD);
-        if (level != null && server.getTickCount() % raidCoolDown == 0) { // every raidCoolDown seconds
-            float roll = new Random().nextFloat() * 100;
-            if (roll >= CobblemonRaidsConfig.raidOccurrencePercentage) {
-                return;
-            }
-            RaidData raidData = SpawnUtils.spawnRaid();
-            Pokemon pokemon = PokemonProperties.Companion.parse(raidData.raidMon().pokemon()).create();
+        if (server.getTickCount() % raidCoolDown == 0) { // every raidCoolDown seconds
+            ServerLevel level = server.getLevel(DimensionUtils.rollDimension());
+            if (level != null) {
+                float roll = new Random().nextFloat() * 100;
+                if (roll >= CobblemonRaidsConfig.raidOccurrencePercentage) {
+                    return;
+                }
 
-            RaidDen den = DenManager.getRandomDen();
+                RaidDen den = DenManager.getRandomDen();
 
-            if (den == null || DatapackRegister.raidsRegistry.size() == 0) return;
+                if (den == null || DatapackRegister.raidsRegistry.size() == 0) return;
 
-            BlockPos pos = SpawnUtils.getRaidSpawnPos(level);
+                BlockPos pos = SpawnUtils.getRaidSpawnPos(level);
 
-            RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT.get();
+                if (pos == null) return;
 
-            server.sendSystemMessage(Component.literal(pos.toString()));
-            level.setBlock(pos, raidSpot.defaultBlockState(), Block.UPDATE_ALL);
+                RaidData raidData = SpawnUtils.spawnRaid(level, pos);
 
-            RaidBoss raid = new RaidBoss(raidData.maxHealth(),
-                    raidData.baseScale(),
-                    pokemon,
-                    raidData.damagePerWin(),
-                    den,
-                    raidData.maxPlayers(),
-                    level,
-                    pos,
-                    raidData.preBattleDuration(),
-                    raidData.battleDuration(),
-                    raidData.prepareDuration(),
-                    raidData.catchDuration(),
-                    raidData.lootTable(),
-                    raidData.totalBalls()
-            );
+                if(raidData == null) return;
 
-            raidSpot.setRaid(raid);
-            Webhook webhook = Webhook.loadFromJson(server);
-            if (webhook != null) {
-                RaidMon raidMon = raidData.raidMon();
-                webhook.sendWebhook(raidMon.pokemonImage(), raidMon.name(), raidData.battleDuration());
+                Pokemon pokemon = PokemonProperties.Companion.parse(raidData.raidMon().pokemon()).create();
+
+                RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT.get();
+
+                server.sendSystemMessage(Component.literal(pos.toString()));
+                server.sendSystemMessage(Component.literal(level.getLevel().dimension().toString()));
+                level.setBlock(pos, raidSpot.defaultBlockState(), Block.UPDATE_ALL);
+
+                RaidBoss raid = new RaidBoss(raidData.maxHealth(),
+                        raidData.baseScale(),
+                        pokemon,
+                        raidData.damagePerWin(),
+                        den,
+                        raidData.maxPlayers(),
+                        level,
+                        pos,
+                        raidData.preBattleDuration(),
+                        raidData.battleDuration(),
+                        raidData.prepareDuration(),
+                        raidData.catchDuration(),
+                        raidData.lootTable(),
+                        raidData.totalBalls()
+                );
+
+                raidSpot.setRaid(raid);
+                Webhook webhook = Webhook.loadFromJson(server);
+                if (webhook != null) {
+                    RaidMon raidMon = raidData.raidMon();
+                    webhook.sendWebhook(raidMon.pokemonImage(), raidMon.name(), raidData.battleDuration());
+                }
             }
         }
     }

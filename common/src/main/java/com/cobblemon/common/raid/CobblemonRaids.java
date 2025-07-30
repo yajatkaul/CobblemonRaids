@@ -21,12 +21,12 @@ public final class CobblemonRaids {
     public static void register() {
         CobbleEvents.register();
         RaidBlocks.register();
+
         RaidItems.register();
+
         RaidEntities.register();
         CobblemonRaidsConfig.register();
         RaidDataComponents.register();
-
-        RaidItems.registerBalls();
     }
 
     public static void onServerTickEnd(MinecraftServer server) {
