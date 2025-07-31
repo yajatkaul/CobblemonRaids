@@ -6,5 +6,7 @@
   "raid.phase.pre_battle": "Get Ready - Time Remaining : %d",
   "raid.illegal_catch": "You can't use these pokeballs",
   "item.cobblemon_raids.raid_ball": "Raid Ball",
-  "cobblemon_raids.not_in_raid": "You are not in a raid"
+  "cobblemon_raids.not_in_raid": "You are not in a raid",
+  "lore.cobblemon_raids.ivs": "----- IVs -----",
+  "level.cobblemon_raids.info": "Level: %1d"
 }

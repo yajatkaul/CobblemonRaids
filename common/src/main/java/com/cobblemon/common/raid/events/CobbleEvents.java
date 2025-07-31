@@ -32,6 +32,9 @@ public class CobbleEvents {
 
         ServerPlayer player = event.getPlayer();
         RaidBoss raidBoss = RaidManager.getRaidFromPlayer(player);
+
+        pokemon.setLevel(raidBoss.getCatchLevel());
+        pokemon.setScaleModifier(raidBoss.getOrignalScale());
         if (raidBoss != null) {
             raidBoss.returnPlayer(player);
         }

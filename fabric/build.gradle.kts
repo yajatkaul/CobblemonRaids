@@ -13,10 +13,6 @@ loom {
     enableTransitiveAccessWideners.set(true)
     silentMojangMappingsLicense()
 
-    mixin {
-        defaultRefmapName.set("mixins.${project.name}.refmap.json")
-    }
-
     accessWidenerPath.set(file("../common/src/main/resources/cobblemon_raids.accesswidener"))
 }
 val shadowCommon = configurations.create("shadowCommon")

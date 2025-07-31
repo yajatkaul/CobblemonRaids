@@ -98,6 +98,9 @@ public class CobblemonRaidCommands {
                     10,
                     10,
                     "minecraft:chests/simple_dungeon",
+                    "minecraft:chests/simple_dungeon",
+                    20,
+                    10,
                     20
             );
 

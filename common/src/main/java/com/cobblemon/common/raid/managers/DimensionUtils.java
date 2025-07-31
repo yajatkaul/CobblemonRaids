@@ -86,7 +86,7 @@ public class DimensionUtils {
     // This method now allows multiple dimensions per rarity, enabling the weight-based selection in Step 3
     private static Map<String, List<ResourceKey<Level>>> getDimensionsByRarity() {
         return Map.of(
-                "common", List.of(Level.OVERWORLD, Level.NETHER),
+                "common", List.of(Level.OVERWORLD),
                 "rare", List.of(Level.NETHER, Level.END),
                 "legendary", List.of(Level.END)
         );

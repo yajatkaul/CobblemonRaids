@@ -5,6 +5,8 @@ import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.managers.RaidUtils;
+import com.cobblemon.mod.common.api.pokemon.stats.Stat;
+import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -23,6 +25,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public record Webhook(
@@ -36,14 +41,14 @@ public record Webhook(
             Codec.STRING.fieldOf("webhookUrl").forGetter(Webhook::webhookUrl)
     ).apply(instance, Webhook::new));
 
-    public void sendWebhook(String imgUrl, String raidName, long raidDuration) {
+    public void sendWebhook(String imgUrl, String raidName, long raidDuration, String cords, String dimension, Pokemon pokemon, String level) {
         WebhookClient client = client();
         if (client == null) return;
 
         WebhookEmbedBuilder builder = new WebhookEmbedBuilder();
 
-        // Set title/name as description
-        builder.setDescription(raidName);
+        // Set title (no formatting here, Discord doesn't parse markdown in title)
+        builder.setTitle(new WebhookEmbed.EmbedTitle(raidName, null));
 
         // Set image
         builder.setImageUrl(imgUrl);
@@ -53,13 +58,23 @@ public record Webhook(
         builder.setTimestamp(now);
 
         // Format start time as 12-hour clock with AM/PM (e.g., 1:24 PM)
-        String formattedTime = java.time.format.DateTimeFormatter.ofPattern("h:mm a")
-                .withZone(java.time.ZoneId.systemDefault())
+        String formattedTime = DateTimeFormatter.ofPattern("h:mm a")
+                .withZone(ZoneId.systemDefault())
                 .format(now);
 
-        // Add start time and duration fields
-        builder.addField(new WebhookEmbed.EmbedField(false, "Start Time", formattedTime));
-        builder.addField(new WebhookEmbed.EmbedField(false, "Raid Duration", RaidUtils.formatTime((int) raidDuration)));
+        // Add informational fields
+        builder.addField(new WebhookEmbed.EmbedField(false, "**Start Time:**", formattedTime));
+        builder.addField(new WebhookEmbed.EmbedField(false, "**Raid Duration:**", RaidUtils.formatTime((int) raidDuration)));
+        builder.addField(new WebhookEmbed.EmbedField(false, "**Dimension:**", dimension));
+        builder.addField(new WebhookEmbed.EmbedField(false, "**Coords:**", cords));
+        builder.addField(new WebhookEmbed.EmbedField(false, "**Level:**", level));
+
+        // Add IV stats
+        for (Map.Entry<? extends Stat, ? extends Integer> iv : pokemon.getIvs()) {
+            String statName = iv.getKey().getDisplayName().getString();
+            String statValue = String.valueOf(iv.getValue());
+            builder.addField(new WebhookEmbed.EmbedField(true, "**" + statName + ":**", statValue));
+        }
 
         // Send the embed
         client.send(builder.build());

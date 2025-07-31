@@ -1,5 +1,6 @@
 package com.cobblemon.common.raid.managers;
 
+import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.codecs.RaidData;
 import com.cobblemon.common.raid.datapack.DatapackRegister;
 import net.minecraft.core.BlockPos;
@@ -74,9 +75,10 @@ public class SpawnUtils {
 
     private static Map<String, Float> getRarityChances() {
         return Map.of(
-                "common", 0.6f,
-                "rare", 0.3f,
-                "legendary", 0.1f
+                "common", 0.938f,
+                "uncommon", 0.05f,
+                "rare", 0.01f,
+                "ultra-rare", 0.002f
         );
     }
 
@@ -117,6 +119,9 @@ public class SpawnUtils {
                 int z = playerPos.getZ() + (int) (radius * Math.sin(angle));
 
                 int y = getSafeY(level, x, z);
+                if(y == nullY){
+                    return null;
+                }
 
                 candidatePos = new BlockPos(x, y, z);
             } else {
@@ -124,6 +129,9 @@ public class SpawnUtils {
                 int x = level.random.nextInt(30000) - 15000;
                 int z = level.random.nextInt(30000) - 15000;
                 int y = getSafeY(level, x, z);
+                if(y == nullY){
+                    return null;
+                }
 
                 candidatePos = new BlockPos(x, y, z);
             }
@@ -137,29 +145,23 @@ public class SpawnUtils {
         return pos;
     }
 
+    private static final int nullY = 1000000;
     private static int getSafeY(ServerLevel level, int x, int z) {
-        ResourceKey<Level> dim = level.dimension();
+        if (level.dimensionType().hasCeiling()) {
+            // Dimensions like the Nether: scan from top down to find the first solid block under the ceiling
+            for (int y = 32; y < level.getMaxBuildHeight() - 40; y++) {
+                BlockPos pos = new BlockPos(x, y, z);
+                BlockState state = level.getBlockState(pos);
+                BlockPos above = pos.above();
+                BlockState stateAbove = level.getBlockState(above);
 
-        if (dim == Level.NETHER) {
-            // Nether: find the top-most solid block below the bedrock ceiling (usually around Y=120)
-            for (int y = 120; y > 31; y--) {
-                BlockPos pos = new BlockPos(x, y, z);
-                BlockState state = level.getBlockState(pos);
-                if (state.isCollisionShapeFullBlock(level, pos)) {
+                // Find a solid block with air above it (i.e., walkable surface)
+                if (state.isCollisionShapeFullBlock(level, pos) && stateAbove.isAir()) {
                     return y + 1;
                 }
             }
-            return 32; // fallback low position
-        } else if (dim == Level.END) {
-            // End: usually spawns on End Stone, avoid void
-            for (int y = 80; y > 30; y--) {
-                BlockPos pos = new BlockPos(x, y, z);
-                BlockState state = level.getBlockState(pos);
-                if (state.isCollisionShapeFullBlock(level, pos)) {
-                    return y + 1;
-                }
-            }
-            return 60;
+
+            return nullY; // fallback
         } else {
             // Overworld or others: use heightmap
             return level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);

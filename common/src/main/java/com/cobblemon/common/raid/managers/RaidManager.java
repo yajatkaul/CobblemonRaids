@@ -156,15 +156,25 @@ public class RaidManager {
                         raidData.battleDuration(),
                         raidData.prepareDuration(),
                         raidData.catchDuration(),
-                        raidData.lootTable(),
-                        raidData.totalBalls()
+                        raidData.lootTables().winLoot(),
+                        raidData.lootTables().defeatLoot(),
+                        raidData.totalBalls(),
+                        raidData.catchLevel(),
+                        raidData.bossLevel()
                 );
 
                 raidSpot.setRaid(raid);
                 Webhook webhook = Webhook.loadFromJson(server);
                 if (webhook != null) {
                     RaidMon raidMon = raidData.raidMon();
-                    webhook.sendWebhook(raidMon.pokemonImage(), raidMon.name(), raidData.battleDuration());
+                    webhook.sendWebhook(raidMon.pokemonImage(),
+                            raidMon.name(),
+                            raidData.battleDuration(),
+                            pos.toString(),
+                            level.dimension().location().toString(),
+                            pokemon,
+                            String.valueOf(raidData.catchLevel())
+                    );
                 }
             }
         }

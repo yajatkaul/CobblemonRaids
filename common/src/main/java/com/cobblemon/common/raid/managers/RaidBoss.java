@@ -43,7 +43,8 @@ public class RaidBoss {
     private boolean defeated = false;
     private final RaidDen raidDen;
     private boolean started = false;
-    private final ResourceKey<LootTable> lootTable;
+    private final ResourceKey<LootTable> winLootTable;
+    private final ResourceKey<LootTable> defeatLootTable;
     private final int ballCount; //POKEBALL!!!!!
 
     public enum Phase {
@@ -60,6 +61,8 @@ public class RaidBoss {
     private final long catchDuration;
     private long phaseTime = 0;
     private final int maxPlayers;
+    private final int catchLevel;
+    private final float orignalScale;
 
     private static class Connection {
         public final BlockPos connectionBlock;
@@ -89,8 +92,11 @@ public class RaidBoss {
                     long battleDuration,
                     long prepareDuration,
                     long catchDuration,
-                    String lootTable,
-                    int ballCount
+                    String winLoot,
+                    String defeatLoot,
+                    int ballCount,
+                    int catchLevel,
+                    int bossLevel
     ) {
         this.maxHealth = maxHealth;
         this.baseScale = baseScale;
@@ -104,8 +110,10 @@ public class RaidBoss {
         this.battleDuration = battleDuration;
         this.prepareDuration = prepareDuration;
         this.catchDuration = catchDuration;
-        this.lootTable = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.tryParse(lootTable));
+        this.winLootTable = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.tryParse(winLoot));
+        this.defeatLootTable = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.tryParse(defeatLoot));
         this.ballCount = ballCount;
+        this.catchLevel = catchLevel;
 
         this.bossEvent = new ServerBossEvent(
                 Component.translatable("raid.phase.pre_battle", preBattleDuration - phaseTime),
@@ -113,11 +121,21 @@ public class RaidBoss {
                 BossEvent.BossBarOverlay.NOTCHED_12
         );
 
+        this.orignalScale = this.boss.getScaleModifier();
         this.boss.setScaleModifier(baseScale);
+        this.boss.setLevel(bossLevel);
         this.currentPhase = Phase.PRE_BATTLE;
         UncatchableProperty.INSTANCE.uncatchable().apply(this.boss);
         RaidManager.addRaid(this);
         DenManager.occupyDen(this.raidDen);
+    }
+
+    public float getOrignalScale() {
+        return this.orignalScale;
+    }
+
+    public int getCatchLevel() {
+        return this.catchLevel;
     }
 
     public void tick(MinecraftServer server) {
@@ -141,7 +159,8 @@ public class RaidBoss {
 
             removePlayer(player);
 
-            List<ItemStack> itemStack = resolveItemsToEject((ServerLevel) player.level(), this.lootTable, player.getOnPos(), player);
+            ResourceKey<LootTable> lootPool = this.defeated ? this.winLootTable : this.defeatLootTable;
+            List<ItemStack> itemStack = resolveItemsToEject((ServerLevel) player.level(), lootPool, player.getOnPos(), player);
             ItemStack stackToGive = new ItemStack(RaidItems.RAID_LOOT);
             stackToGive.set(RaidDataComponents.LOOT_COMPONENT.get(), itemStack);
             RaidUtils.giveItems(player, stackToGive);
@@ -163,6 +182,7 @@ public class RaidBoss {
                 this.started = true;
                 if (this.activePlayers.isEmpty()) {
                     endRaid();
+                    this.connection.level.removeBlock(this.connection.connectionBlock, true);
                     return;
                 }
                 PokemonEntity pokemonEntity = this.getBoss().getEntity();
