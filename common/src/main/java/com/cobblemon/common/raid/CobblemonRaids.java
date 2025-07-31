@@ -2,6 +2,7 @@ package com.cobblemon.common.raid;
 
 import com.cobblemon.common.raid.blocks.RaidBlocks;
 import com.cobblemon.common.raid.blocks.RaidEntities;
+import com.cobblemon.common.raid.config.CobblemonRaidDimConfig;
 import com.cobblemon.common.raid.config.CobblemonRaidsConfig;
 import com.cobblemon.common.raid.datacomponents.RaidDataComponents;
 import com.cobblemon.common.raid.datapack.DatapackRegister;
@@ -26,6 +27,7 @@ public final class CobblemonRaids {
 
         RaidEntities.register();
         CobblemonRaidsConfig.register();
+        CobblemonRaidDimConfig.register();
         RaidDataComponents.register();
     }
 

@@ -13,10 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class CobblemonRaidsConfig {
-    private static final String FILE_PATH = "./config/cobblemon_raids.json";
+    private static final String FILE_PATH = "./config/cobblemon_raids/cobblemon_raids.json";
 
-    public static int raidCoolDown = 100;
-    public static float raidOccurrencePercentage = 100f;
+    public static int raidCoolDown = 3600;
+    public static float raidOccurrencePercentage = 50f;
 
     public static void register() {
         load();
@@ -28,7 +28,7 @@ public class CobblemonRaidsConfig {
         json.addProperty("raidOccurrencePercentage", raidOccurrencePercentage);
 
         try {
-            Files.createDirectories(Path.of("./config"));
+            Files.createDirectories(Path.of("./config/cobblemon_raids"));
             try (FileWriter writer = new FileWriter(FILE_PATH)) {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 writer.write(gson.toJson(json));
