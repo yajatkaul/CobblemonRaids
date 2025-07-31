@@ -4,6 +4,7 @@ import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.codecs.RaidData;
 import com.cobblemon.common.raid.commands.CobblemonRaidCommands;
 import com.cobblemon.common.raid.blocks.RaidEntityRenderers;
+import com.cobblemon.common.raid.items.RaidItems;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -28,6 +30,12 @@ public class CobblemonRaidsNeo {
         CobblemonRaids.register();
 
         modEventBus.addListener(this::registerDatapackRegistries);
+
+        modEventBus.addListener(this::onCommonSetup);
+    }
+
+    private void onCommonSetup(final FMLCommonSetupEvent event) {
+        CobblemonRaids.registerCommon();
     }
 
     @SubscribeEvent

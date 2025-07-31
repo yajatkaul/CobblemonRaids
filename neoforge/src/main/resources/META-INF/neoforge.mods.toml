@@ -36,3 +36,5 @@ side = "BOTH"
 
 [[mixins]]
 config = "mixins.cobblemon_raids-common.json"
+[[mixins]]
+config = "mixins.cobblemon_raids-neoforge.json"

@@ -1,4 +1,4 @@
-package com.cobblemon.common.raid.mixin;
+package com.cobblemon.common.raid.mixins;
 
 import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.mod.common.api.pokeball.PokeBalls;

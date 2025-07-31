@@ -31,6 +31,8 @@ public class CobblemonRaidsFabric implements ModInitializer {
         registerDatapacks();
 
         ServerPlayerEvents.LEAVE.register(PlayerEvents::onPlayerLeave);
+
+        CobblemonRaids.registerCommon();
     }
 
     public static final ResourceKey<Registry<RaidData>> RAID_REGISTRY_KEY =

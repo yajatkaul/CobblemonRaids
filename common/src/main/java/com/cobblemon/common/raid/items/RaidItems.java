@@ -34,6 +34,5 @@ public class RaidItems {
 
     public static void register() {
         ITEMS.register();
-        registerBalls();
     }
 }

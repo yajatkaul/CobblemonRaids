@@ -19,7 +19,8 @@
     ]
   },
   "mixins": [
-    "mixins.cobblemon_raids-common.json"
+    "mixins.cobblemon_raids-common.json",
+    "mixins.cobblemon_raids-fabric.json"
   ],
   "depends": {
     "minecraft": "1.21.1",

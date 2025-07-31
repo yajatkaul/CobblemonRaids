@@ -31,6 +31,10 @@ public final class CobblemonRaids {
         RaidDataComponents.register();
     }
 
+    public static void registerCommon() {
+        RaidItems.registerBalls();
+    }
+
     public static void onServerTickEnd(MinecraftServer server) {
         RaidManager.tick(server);
         for (RaidBoss raid : RaidManager.getAllRaids()) {
