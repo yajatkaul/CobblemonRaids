@@ -2,6 +2,7 @@ package com.cobblemon.common.raid.items.custom.items;
 
 import com.cobblemon.common.raid.datacomponents.RaidDataComponents;
 import com.cobblemon.common.raid.managers.RaidUtils;
+import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -12,9 +13,9 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public class RaidLoot extends Item {
-    public RaidLoot(Properties properties) {
-        super(properties);
+public class RaidLoot extends SimplePolymerItem {
+    public RaidLoot(Properties properties, Item vanillaBaseItem) {
+        super(properties, vanillaBaseItem);
     }
 
     @Override
