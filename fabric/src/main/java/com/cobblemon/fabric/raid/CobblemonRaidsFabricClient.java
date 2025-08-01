@@ -1,7 +1,6 @@
-package com.cobblemon.fabric.raids;
+package com.cobblemon.fabric.raid;
 
 import com.cobblemon.common.raid.CobblemonRaidsClient;
-import com.cobblemon.common.raid.blocks.RaidEntityRenderers;
 import net.fabricmc.api.ClientModInitializer;
 
 public class CobblemonRaidsFabricClient implements ClientModInitializer {

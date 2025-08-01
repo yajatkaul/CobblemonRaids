@@ -1,11 +1,9 @@
-package com.cobblemon.fabric.raids;
+package com.cobblemon.fabric.raid;
 
 import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.codecs.RaidData;
 import com.cobblemon.common.raid.commands.CobblemonRaidCommands;
 import com.cobblemon.common.raid.events.PlayerEvents;
-import com.cobblemon.mod.common.platform.events.ServerPlayerEvent;
-import com.cobblemon.mod.common.platform.events.ServerTickEvent;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;

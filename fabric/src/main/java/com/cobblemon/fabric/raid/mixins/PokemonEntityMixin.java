@@ -1,4 +1,4 @@
-package com.cobblemon.fabric.raids.mixins;
+package com.cobblemon.fabric.raid.mixins;
 
 import com.cobblemon.common.raid.managers.RaidBoss;
 import com.cobblemon.common.raid.managers.RaidManager;
