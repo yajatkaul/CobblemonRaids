@@ -13,10 +13,14 @@
   "entrypoints": {
     "main": [
       "com.cobblemon.fabric.raids.CobblemonRaidsFabric"
+    ],
+    "client": [
+      "com.cobblemon.fabric.raids.CobblemonRaidsFabricClient"
     ]
   },
   "mixins": [
-    "mixins.cobblemon_raids-common.json"
+    "mixins.cobblemon_raids-common.json",
+    "mixins.cobblemon_raids-fabric.json"
   ],
   "depends": {
     "minecraft": "1.21.1",

@@ -43,3 +43,7 @@ bin/
 .DS_Store
 **/run/**
 /.idea
+
+/.kotlin
+
+/.architectury-transformer

@@ -1,6 +1,12 @@
 {
   "raid.phase.battle": "Battle Boss - Time Remaining : %d",
-  "raid.phase.prepare": "Prepare Boss - Time Remaining : %d",
-  "raid.phase.catch": "Catch Boss - Time Remaining : %d",
-  "raid.alert.skill_issue": "You do not have any pokemon to battle with!"
+  "raid.phase.prepare": "Prepare To Catch - Time Remaining : %d",
+  "raid.phase.catch": "Catch The Boss - Time Remaining : %d",
+  "raid.alert.skill_issue": "You do not have any pokemon to battle with!",
+  "raid.phase.pre_battle": "Get Ready - Time Remaining : %d",
+  "raid.illegal_catch": "You can't use these pokeballs",
+  "item.cobblemon_raids.raid_ball": "Raid Ball",
+  "cobblemon_raids.not_in_raid": "You are not in a raid",
+  "lore.cobblemon_raids.ivs": "----- IVs -----",
+  "level.cobblemon_raids.info": "Level: %1d"
 }
