@@ -45,3 +45,5 @@ bin/
 /.idea
 
 /.kotlin
+
+/.architectury-transformer

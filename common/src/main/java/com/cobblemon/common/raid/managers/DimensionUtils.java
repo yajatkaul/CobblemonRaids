@@ -1,6 +1,5 @@
 package com.cobblemon.common.raid.managers;
 
-import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.config.CobblemonRaidDimConfig;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;

@@ -116,7 +116,7 @@ public class CobblemonRaidCommands {
         ServerPlayer player = context.getSource().getPlayer();
 
         CatchSpawn catchSpawn = new CatchSpawn(player.position(), player.position());
-        new RaidDen("example", player.level().dimension(), player.position(), player.position(), List.of(catchSpawn)).saveToJson(context.getSource().getServer());
+        new RaidDen("example", player.level().dimension(), "test", player.position(), player.position(), List.of(catchSpawn)).saveToJson(context.getSource().getServer());
 
         return 1;
     }

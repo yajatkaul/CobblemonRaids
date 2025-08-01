@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 
 public class DenManager {
     private static final Set<RaidDen> raidDenList = new HashSet<>();
@@ -19,11 +18,11 @@ public class DenManager {
         return raidDenInactive;
     }
 
-    public static RaidDen getRandomDen() {
-        if (raidDenInactive.isEmpty()) {
-            return null;
-        }
-        return raidDenInactive.getFirst();
+    public static RaidDen getRandomDen(String raidType) {
+        return raidDenInactive.stream()
+                .filter(r -> r.denType().equals(raidType))
+                .findAny()
+                .orElse(null);
     }
 
     public static RaidDen getRandomDenByLevel(ServerLevel level) {

@@ -1,6 +1,5 @@
 package com.cobblemon.common.raid.managers;
 
-import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.codecs.RaidData;
 import com.cobblemon.common.raid.datapack.DatapackRegister;
 import net.minecraft.core.BlockPos;
@@ -11,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -119,7 +117,7 @@ public class SpawnUtils {
                 int z = playerPos.getZ() + (int) (radius * Math.sin(angle));
 
                 int y = getSafeY(level, x, z);
-                if(y == nullY){
+                if (y == nullY) {
                     return null;
                 }
 
@@ -129,7 +127,7 @@ public class SpawnUtils {
                 int x = level.random.nextInt(30000) - 15000;
                 int z = level.random.nextInt(30000) - 15000;
                 int y = getSafeY(level, x, z);
-                if(y == nullY){
+                if (y == nullY) {
                     return null;
                 }
 
@@ -146,6 +144,7 @@ public class SpawnUtils {
     }
 
     private static final int nullY = 1000000;
+
     private static int getSafeY(ServerLevel level, int x, int z) {
         if (level.dimensionType().hasCeiling()) {
             // Dimensions like the Nether: scan from top down to find the first solid block under the ceiling

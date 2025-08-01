@@ -26,6 +26,11 @@ public class PokemonEntityMixin {
         }
     }
 
+    @Inject(method = "defineSynchedData", at = @At("TAIL"))
+    private void injectCustomAttachment(SynchedEntityData.Builder builder, CallbackInfo ci) {
+        builder.define(RaidManager.RAID_BOSS_PHASE, RaidManager.NOT_A_BOSS);
+    }
+
     @Inject(method = "isBattling", at = @At("HEAD"), cancellable = true, remap = false)
     public void isBattling(CallbackInfoReturnable<Boolean> cir) {
         PokemonEntity pokemon = (PokemonEntity) (Object) this;
@@ -34,11 +39,6 @@ public class PokemonEntityMixin {
         if (raidBossPhase == RaidManager.BATTLE_PHASE) {
             cir.setReturnValue(true);
         }
-    }
-
-    @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void injectCustomAttachment(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(RaidManager.RAID_BOSS_PHASE, RaidManager.NOT_A_BOSS);
     }
 
     @Inject(method = "getCurrentPoseType", at = @At("HEAD"), cancellable = true, remap = false)
@@ -55,7 +55,7 @@ public class PokemonEntityMixin {
         }
     }
 
-    @Inject(method = "canBattle", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "canBattle", at = @At("HEAD"), cancellable = true, remap = false)
     private void canBattle(Player player, CallbackInfoReturnable<Boolean> cir) {
         PokemonEntity pokemonEntity = (PokemonEntity) (Object) this;
 

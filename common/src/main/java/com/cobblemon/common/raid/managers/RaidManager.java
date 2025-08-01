@@ -1,6 +1,5 @@
 package com.cobblemon.common.raid.managers;
 
-import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.blocks.RaidBlocks;
 import com.cobblemon.common.raid.blocks.custom.blocks.RaidSpot;
 import com.cobblemon.common.raid.codecs.RaidData;
@@ -124,17 +123,17 @@ public class RaidManager {
                     return;
                 }
 
-                RaidDen den = DenManager.getRandomDen();
-
-                if (den == null || DatapackRegister.raidsRegistry.size() == 0) return;
-
                 BlockPos pos = SpawnUtils.getRaidSpawnPos(level);
 
                 if (pos == null) return;
 
                 RaidData raidData = SpawnUtils.spawnRaid(level, pos);
 
-                if(raidData == null) return;
+                if (raidData == null) return;
+
+                RaidDen den = DenManager.getRandomDen(raidData.raidType());
+
+                if (den == null || DatapackRegister.raidsRegistry.size() == 0) return;
 
                 Pokemon pokemon = PokemonProperties.Companion.parse(raidData.raidMon().pokemon()).create();
 
@@ -144,12 +143,12 @@ public class RaidManager {
                 server.sendSystemMessage(Component.literal(level.getLevel().dimension().toString()));
                 level.setBlock(pos, raidSpot.defaultBlockState(), Block.UPDATE_ALL);
 
-                RaidBoss raid = new RaidBoss(raidData.maxHealth(),
-                        raidData.baseScale(),
+                RaidBoss raid = new RaidBoss(raidData.raidMon().maxHealth(),
+                        raidData.raidMon().baseScale(),
                         pokemon,
-                        raidData.damagePerWin(),
+                        raidData.raidMon().damagePerWin(),
                         den,
-                        raidData.maxPlayers(),
+                        raidData.raidMon().maxPlayers(),
                         level,
                         pos,
                         raidData.preBattleDuration(),
@@ -159,8 +158,8 @@ public class RaidManager {
                         raidData.lootTables().winLoot(),
                         raidData.lootTables().defeatLoot(),
                         raidData.totalBalls(),
-                        raidData.catchLevel(),
-                        raidData.bossLevel()
+                        raidData.raidMon().catchLevel(),
+                        raidData.raidMon().bossLevel()
                 );
 
                 raidSpot.setRaid(raid);
@@ -173,7 +172,7 @@ public class RaidManager {
                             pos.toString(),
                             level.dimension().location().toString(),
                             pokemon,
-                            String.valueOf(raidData.catchLevel())
+                            String.valueOf(raidData.raidMon().catchLevel())
                     );
                 }
             }

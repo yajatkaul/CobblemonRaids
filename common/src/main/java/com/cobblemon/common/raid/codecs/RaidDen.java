@@ -27,12 +27,14 @@ import java.util.Set;
 
 public record RaidDen(String name,
                       ResourceKey<Level> denLevel,
+                      String denType,
                       Vec3 bossSpawn,
                       Vec3 denSpawn,
                       List<CatchSpawn> catchSpawns) {
     public static final Codec<RaidDen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("name").forGetter(RaidDen::name),
             Level.RESOURCE_KEY_CODEC.fieldOf("denLevel").forGetter(RaidDen::denLevel),
+            Codec.STRING.fieldOf("denType").forGetter(RaidDen::denType),
             Vec3.CODEC.fieldOf("bossSpawn").forGetter(RaidDen::bossSpawn),
             Vec3.CODEC.fieldOf("denSpawn").forGetter(RaidDen::denSpawn),
             CatchSpawn.CODEC.listOf().fieldOf("catchSpawns").forGetter(RaidDen::catchSpawns)
