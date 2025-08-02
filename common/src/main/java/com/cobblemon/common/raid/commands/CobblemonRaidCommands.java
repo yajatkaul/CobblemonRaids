@@ -2,10 +2,12 @@ package com.cobblemon.common.raid.commands;
 
 import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.blocks.RaidBlocks;
+import com.cobblemon.common.raid.blocks.custom.blockEntities.RaidSpotEntity;
 import com.cobblemon.common.raid.blocks.custom.blocks.RaidSpot;
 import com.cobblemon.common.raid.codecs.CatchSpawn;
 import com.cobblemon.common.raid.codecs.RaidDen;
 import com.cobblemon.common.raid.codecs.Webhook;
+import com.cobblemon.common.raid.items.RaidItems;
 import com.cobblemon.common.raid.managers.DenManager;
 import com.cobblemon.common.raid.managers.RaidBoss;
 import com.cobblemon.common.raid.managers.RaidManager;
@@ -23,6 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.List;
 
@@ -31,7 +34,7 @@ import static net.minecraft.commands.Commands.literal;
 
 public class CobblemonRaidCommands {
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context, Commands.CommandSelection environment) {
-        dispatcher.register(literal("raid")
+        dispatcher.register(literal("cbraid")
                 .then(argument("cords", Vec3Argument.vec3())
                         .executes(CobblemonRaidCommands::spawnBoss))
                 .then(literal("create_den")
@@ -107,10 +110,8 @@ public class CobblemonRaidCommands {
 
         BlockPos pos = new BlockPos(x, y, z);
 
-        RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT;
-
         player.sendSystemMessage(Component.literal(pos.toString()));
-        level.setBlock(pos, raidSpot.defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(pos, RaidBlocks.RAID_SPOT.defaultBlockState(), Block.UPDATE_ALL);
 
         try {
             RaidDen den = DenManager.getDenByName("example");
@@ -134,7 +135,10 @@ public class CobblemonRaidCommands {
                     20
             );
 
-            raidSpot.setRaid(raid);
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof RaidSpotEntity raidSpotEntity) {
+                raidSpotEntity.setRaid(raid);
+            }
         } catch (Exception e) {
             CobblemonRaids.LOGGER.info(String.valueOf(e));
         }

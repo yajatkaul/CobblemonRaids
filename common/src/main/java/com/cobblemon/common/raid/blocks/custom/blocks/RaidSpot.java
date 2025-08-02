@@ -4,10 +4,12 @@ import ca.landonjw.gooeylibs2.api.UIManager;
 import ca.landonjw.gooeylibs2.api.button.GooeyButton;
 import ca.landonjw.gooeylibs2.api.page.GooeyPage;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
+import com.cobblemon.common.raid.blocks.custom.blockEntities.RaidSpotEntity;
 import com.cobblemon.common.raid.managers.RaidBoss;
 import com.cobblemon.mod.common.api.pokemon.stats.Stat;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -34,8 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class RaidSpot extends Block {
-    private RaidBoss raid = null;
+public class RaidSpot extends BaseEntityBlock {
     public static final VoxelShape SHAPE = Block.box(2, 0, 2, 14, 4, 14);
 
     public RaidSpot(Properties properties) {
@@ -52,13 +53,13 @@ public class RaidSpot extends Block {
         return RenderShape.MODEL;
     }
 
-    public void setRaid(RaidBoss boss) {
-        this.raid = boss;
+    public static final MapCodec<RaidSpot> CODEC = simpleCodec(RaidSpot::new);
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
-    public RaidBoss getRaid() {
-        return this.raid;
-    }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult) {
@@ -66,23 +67,25 @@ public class RaidSpot extends Block {
             return InteractionResult.PASS;
         }
 
-        if (this.raid != null) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (blockEntity instanceof RaidSpotEntity rs && rs.getRaid() != null) {
+            RaidBoss raid = rs.getRaid();
             GooeyButton filler = GooeyButton.builder()
                     .display(Items.GRAY_STAINED_GLASS_PANE.getDefaultInstance())
                     .build();
 
             GooeyButton pokemonInfoButton = GooeyButton.builder()
-                    .display(getPokemonItem(this.raid.getBoss()))
+                    .display(getPokemonItem(raid))
                     .build();
 
             GooeyButton joinButton = GooeyButton.builder()
                     .display(Items.DIAMOND_SWORD.getDefaultInstance())
                     .with(DataComponents.ITEM_NAME, Component.translatable("buttons.join.cobblemon_raids"))
                     .with(DataComponents.LORE, new ItemLore(List.of(
-                            Component.literal(String.format("%d/%d", this.raid.getPlayers().size(), this.raid.getMaxPlayers()))
+                            Component.literal(String.format("%d/%d", raid.getPlayers().size(), raid.getMaxPlayers()))
                     )))
                     .onClick(() -> {
-                        this.raid.addPlayer((ServerPlayer) player);
+                        raid.addPlayer((ServerPlayer) player);
                         UIManager.closeUI((ServerPlayer) player);
                     })
                     .build();
@@ -111,12 +114,19 @@ public class RaidSpot extends Block {
         return InteractionResult.SUCCESS;
     }
 
-    private ItemStack getPokemonItem(Pokemon pokemon) {
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new RaidSpotEntity(blockPos, blockState);
+    }
+
+    private ItemStack getPokemonItem(RaidBoss raid) {
+        Pokemon pokemon = raid.getBoss();
         ItemStack pokemonStack = PokemonItem.from(pokemon);
         List<Component> lore = new ArrayList<>();
 
         // Add level line
-        lore.add(Component.translatable("level.cobblemon_raids.info", this.raid.getCatchLevel()).withStyle(ChatFormatting.GOLD));
+        lore.add(Component.translatable("level.cobblemon_raids.info", raid.getCatchLevel()).withStyle(ChatFormatting.GOLD));
 
         // Header for IVs
         lore.add(Component.translatable("lore.cobblemon_raids.ivs").withStyle(ChatFormatting.LIGHT_PURPLE));

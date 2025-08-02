@@ -76,28 +76,20 @@ public class CobblemonRaidDimConfig {
         RaidDimensionConfig config = new RaidDimensionConfig();
 
         RaidDimensionConfig.RarityEntry common = new RaidDimensionConfig.RarityEntry();
-        common.chance = 0.938f;
+        common.chance = 1.0f;
         RaidDimensionConfig.DimensionEntry overworld = new RaidDimensionConfig.DimensionEntry();
         overworld.dimension = "minecraft:overworld";
         overworld.weight = 1.0f;
         common.dimensions.add(overworld);
 
         RaidDimensionConfig.RarityEntry uncommon = new RaidDimensionConfig.RarityEntry();
-        uncommon.chance = 0.05f;
+        uncommon.chance = 0f;
 
         RaidDimensionConfig.RarityEntry rare = new RaidDimensionConfig.RarityEntry();
-        rare.chance = 0.01f;
+        rare.chance = 0f;
 
         RaidDimensionConfig.RarityEntry ultra_rare = new RaidDimensionConfig.RarityEntry();
-        ultra_rare.chance = 0.002f;
-        RaidDimensionConfig.DimensionEntry end = new RaidDimensionConfig.DimensionEntry();
-        end.dimension = "minecraft:the_end";
-        end.weight = 0.3f;
-        RaidDimensionConfig.DimensionEntry nether = new RaidDimensionConfig.DimensionEntry();
-        nether.dimension = "minecraft:the_nether";
-        nether.weight = 0.7f;
-        ultra_rare.dimensions.add(nether);
-        ultra_rare.dimensions.add(end);
+        ultra_rare.chance = 0f;
 
         config.rarities.put("common", common);
         config.rarities.put("uncommon", uncommon);

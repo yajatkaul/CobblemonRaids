@@ -6,8 +6,13 @@
   "raid.phase.pre_battle": "Get Ready - Time Remaining : %d",
   "raid.illegal_catch": "You can't use these pokeballs",
   "item.cobblemon_raids.raid_ball": "Raid Ball",
+  "item.cobblemon_raids.raid_loot": "Raid Loot",
+  "block.cobblemon_raids.raid_spot": "Raid Spot",
+  "cobblemon_raids.creative_tab.name": "Cobblemon Raids",
   "cobblemon_raids.not_in_raid": "You are not in a raid",
   "lore.cobblemon_raids.ivs": "----- IVs -----",
   "level.cobblemon_raids.info": "Level: %1d",
-  "raid_full.cobblemon_raids": "Raid is full"
+  "raid_full.cobblemon_raids": "Raid is full",
+  "buttons.close.cobblemon_raids": "Close",
+  "buttons.join.cobblemon_raids": "Join"
 }

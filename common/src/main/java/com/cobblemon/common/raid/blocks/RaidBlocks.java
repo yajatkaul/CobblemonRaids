@@ -11,8 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
-import java.util.function.Supplier;
-
 public class RaidBlocks {
     public static final Block RAID_SPOT = registerBlock("raid_spot",
             new RaidSpot(BlockBehaviour.Properties.of()

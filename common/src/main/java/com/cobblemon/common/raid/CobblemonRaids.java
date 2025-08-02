@@ -1,6 +1,7 @@
 package com.cobblemon.common.raid;
 
 import com.cobblemon.common.raid.blocks.RaidBlocks;
+import com.cobblemon.common.raid.blocks.RaidEntities;
 import com.cobblemon.common.raid.config.CobblemonRaidDimConfig;
 import com.cobblemon.common.raid.config.CobblemonRaidsConfig;
 import com.cobblemon.common.raid.creativeTab.CobblemonRaidsTab;
@@ -21,7 +22,9 @@ public final class CobblemonRaids {
 
     public static void register() {
         CobbleEvents.register();
+
         RaidBlocks.register();
+        RaidEntities.register();
 
         RaidItems.register();
 

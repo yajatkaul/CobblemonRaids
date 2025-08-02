@@ -1,8 +1,6 @@
 package com.cobblemon.neoforge.raid;
 
 import com.cobblemon.common.raid.CobblemonRaids;
-import com.cobblemon.common.raid.CobblemonRaidsClient;
-import com.cobblemon.common.raid.blocks.RaidEntityRenderers;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
