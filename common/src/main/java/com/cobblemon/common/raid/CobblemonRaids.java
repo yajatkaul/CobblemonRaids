@@ -4,6 +4,7 @@ import com.cobblemon.common.raid.blocks.RaidBlocks;
 import com.cobblemon.common.raid.blocks.RaidEntities;
 import com.cobblemon.common.raid.config.CobblemonRaidDimConfig;
 import com.cobblemon.common.raid.config.CobblemonRaidsConfig;
+import com.cobblemon.common.raid.creativeTab.CobblemonRaidsTab;
 import com.cobblemon.common.raid.datacomponents.RaidDataComponents;
 import com.cobblemon.common.raid.datapack.DatapackRegister;
 import com.cobblemon.common.raid.events.CobbleEvents;
@@ -20,6 +21,8 @@ public final class CobblemonRaids {
     public static final String MOD_ID = "cobblemon_raids";
 
     public static void register() {
+        CobblemonRaidsTab.register();
+
         CobbleEvents.register();
         RaidBlocks.register();
 

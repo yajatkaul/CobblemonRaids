@@ -1,6 +1,7 @@
 package com.cobblemon.common.raid.items;
 
 import com.cobblemon.common.raid.CobblemonRaids;
+import com.cobblemon.common.raid.creativeTab.CobblemonRaidsTab;
 import com.cobblemon.common.raid.items.custom.items.RaidLoot;
 import com.cobblemon.common.raid.items.pokeballs.RaidBalls;
 import com.cobblemon.mod.common.item.PokeBallItem;
@@ -15,7 +16,7 @@ public class RaidItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(CobblemonRaids.MOD_ID, Registries.ITEM);
 
     public static final RegistrySupplier<Item> RAID_LOOT = registerItem("raid_loot",
-            () -> new RaidLoot(new Item.Properties().stacksTo(1)));
+            () -> new RaidLoot(new Item.Properties().stacksTo(1).arch$tab(CobblemonRaidsTab.RAID_TAB)));
 
     public static final RegistrySupplier<Item> RAID_BALL = registerPokeball("raid_ball",
             () -> new PokeBallItem(RaidBalls.RAID_BALL));
