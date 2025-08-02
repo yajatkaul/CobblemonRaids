@@ -2,6 +2,7 @@ package com.cobblemon.common.raid.commands;
 
 import com.cobblemon.common.raid.CobblemonRaids;
 import com.cobblemon.common.raid.blocks.RaidBlocks;
+import com.cobblemon.common.raid.blocks.custom.blockEntities.RaidSpotEntity;
 import com.cobblemon.common.raid.blocks.custom.blocks.RaidSpot;
 import com.cobblemon.common.raid.codecs.CatchSpawn;
 import com.cobblemon.common.raid.codecs.RaidDen;
@@ -23,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.List;
 
@@ -31,16 +33,46 @@ import static net.minecraft.commands.Commands.literal;
 
 public class CobblemonRaidCommands {
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context, Commands.CommandSelection environment) {
-        dispatcher.register(literal("raid")
+        dispatcher.register(literal("cbraid")
                 .then(argument("cords", Vec3Argument.vec3())
                         .executes(CobblemonRaidCommands::spawnBoss))
-                .then(literal("test")
-                        .executes(CobblemonRaidCommands::createDen))
+                .then(literal("create_den")
+                        .then(argument("name", StringArgumentType.word())
+                                .then(argument("type", StringArgumentType.word())
+                                        .executes(CobblemonRaidCommands::createDenWithType))
+                                .executes(CobblemonRaidCommands::createDenDefault)))
                 .then(literal("webhook")
                         .then(argument("url", StringArgumentType.greedyString())
                                 .executes(CobblemonRaidCommands::createWebhookConnection)))
                 .then(literal("leave")
                         .executes(CobblemonRaidCommands::leaveRaid)));
+    }
+
+    private static int createDenDefault(CommandContext<CommandSourceStack> context) {
+        return createDen(context, "normal");
+    }
+
+    private static int createDenWithType(CommandContext<CommandSourceStack> context) {
+        String type = context.getArgument("type", String.class);
+        return createDen(context, type);
+    }
+
+    private static int createDen(CommandContext<CommandSourceStack> context, String type) {
+        ServerPlayer player = context.getSource().getPlayer();
+        String denName = context.getArgument("name", String.class);
+
+        CatchSpawn catchSpawn = new CatchSpawn(player.position(), player.position());
+
+        new RaidDen(
+                denName,
+                player.level().dimension(),
+                type,
+                player.position(),
+                player.position(),
+                List.of(catchSpawn)
+        ).saveToJson(context.getSource().getServer());
+
+        return 1;
     }
 
     private static int leaveRaid(CommandContext<CommandSourceStack> context) {
@@ -104,19 +136,13 @@ public class CobblemonRaidCommands {
                     20
             );
 
-            raidSpot.setRaid(raid);
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof RaidSpotEntity raidSpotEntity) {
+                raidSpotEntity.setRaid(raid);
+            }
         } catch (Exception e) {
             CobblemonRaids.LOGGER.info(String.valueOf(e));
         }
-
-        return 1;
-    }
-
-    private static int createDen(CommandContext<CommandSourceStack> context) {
-        ServerPlayer player = context.getSource().getPlayer();
-
-        CatchSpawn catchSpawn = new CatchSpawn(player.position(), player.position());
-        new RaidDen("example", player.level().dimension(), "test", player.position(), player.position(), List.of(catchSpawn)).saveToJson(context.getSource().getServer());
 
         return 1;
     }

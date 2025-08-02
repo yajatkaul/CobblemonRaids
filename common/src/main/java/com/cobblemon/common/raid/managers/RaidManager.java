@@ -1,6 +1,7 @@
 package com.cobblemon.common.raid.managers;
 
 import com.cobblemon.common.raid.blocks.RaidBlocks;
+import com.cobblemon.common.raid.blocks.custom.blockEntities.RaidSpotEntity;
 import com.cobblemon.common.raid.blocks.custom.blocks.RaidSpot;
 import com.cobblemon.common.raid.codecs.RaidData;
 import com.cobblemon.common.raid.codecs.RaidDen;
@@ -32,6 +33,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.*;
 
@@ -137,11 +139,9 @@ public class RaidManager {
 
                 Pokemon pokemon = PokemonProperties.Companion.parse(raidData.raidMon().pokemon()).create();
 
-                RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT.get();
-
                 server.sendSystemMessage(Component.literal(pos.toString()));
                 server.sendSystemMessage(Component.literal(level.getLevel().dimension().toString()));
-                level.setBlock(pos, raidSpot.defaultBlockState(), Block.UPDATE_ALL);
+                level.setBlock(pos, RaidBlocks.RAID_SPOT.get().defaultBlockState(), Block.UPDATE_ALL);
 
                 RaidBoss raid = new RaidBoss(raidData.raidMon().maxHealth(),
                         raidData.raidMon().baseScale(),
@@ -162,7 +162,11 @@ public class RaidManager {
                         raidData.raidMon().bossLevel()
                 );
 
-                raidSpot.setRaid(raid);
+                BlockEntity be = level.getBlockEntity(pos);
+                if (be instanceof RaidSpotEntity raidSpotEntity) {
+                    raidSpotEntity.setRaid(raid);
+                }
+
                 Webhook webhook = Webhook.loadFromJson(server);
                 if (webhook != null) {
                     RaidMon raidMon = raidData.raidMon();

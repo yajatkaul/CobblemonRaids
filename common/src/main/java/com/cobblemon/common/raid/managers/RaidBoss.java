@@ -138,6 +138,10 @@ public class RaidBoss {
         return this.catchLevel;
     }
 
+    public int getMaxPlayers() {
+        return this.maxPlayers;
+    }
+
     public void tick(MinecraftServer server) {
         if (server.getTickCount() % 20 == 0) {
             if (ended) {

@@ -8,5 +8,8 @@
   "item.cobblemon_raids.raid_ball": "Raid Ball",
   "cobblemon_raids.not_in_raid": "You are not in a raid",
   "lore.cobblemon_raids.ivs": "----- IVs -----",
-  "level.cobblemon_raids.info": "Level: %1d"
+  "level.cobblemon_raids.info": "Level: %1d",
+  "raid_full.cobblemon_raids": "Raid is full",
+  "buttons.close.cobblemon_raids": "Close",
+  "buttons.join.cobblemon_raids": "Join"
 }

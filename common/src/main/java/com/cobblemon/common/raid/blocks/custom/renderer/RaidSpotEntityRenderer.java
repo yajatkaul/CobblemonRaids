@@ -14,6 +14,10 @@ public class RaidSpotEntityRenderer implements BlockEntityRenderer<RaidSpotEntit
 
     @Override
     public void render(RaidSpotEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j) {
+        if(blockEntity.getRaid() == null) {
+            return;
+        }
+
         long time = blockEntity.getLevel().getGameTime();
         int startY = 0; // height from relative to the block
         int endY = blockEntity.getLevel().getMaxBuildHeight(); // max height
