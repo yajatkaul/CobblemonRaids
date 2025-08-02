@@ -29,7 +29,7 @@ public record RaidData(RaidMon raidMon,
             RaidLoot.CODEC.fieldOf("lootTables").forGetter(RaidData::lootTables),
             Codec.FLOAT.fieldOf("weight").forGetter(RaidData::weight),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("totalBalls", 20).forGetter(RaidData::totalBalls),
-            Codec.STRING.fieldOf("raidType").forGetter(RaidData::raidType),
+            Codec.STRING.optionalFieldOf("raidType", "normal").forGetter(RaidData::raidType),
             Codec.STRING.optionalFieldOf("biome").forGetter(RaidData::biome)
     ).apply(instance, RaidData::new));
 }

@@ -77,6 +77,10 @@ public class RaidSpot extends Block {
 
             GooeyButton joinButton = GooeyButton.builder()
                     .display(Items.DIAMOND_SWORD.getDefaultInstance())
+                    .with(DataComponents.ITEM_NAME, Component.translatable("buttons.join.cobblemon_raids"))
+                    .with(DataComponents.LORE, new ItemLore(List.of(
+                            Component.literal(String.format("%d/%d", this.raid.getPlayers().size(), this.raid.getMaxPlayers()))
+                    )))
                     .onClick(() -> {
                         this.raid.addPlayer((ServerPlayer) player);
                         UIManager.closeUI((ServerPlayer) player);
@@ -85,6 +89,7 @@ public class RaidSpot extends Block {
 
             GooeyButton leaveButton = GooeyButton.builder()
                     .display(Items.BRUSH.getDefaultInstance())
+                    .with(DataComponents.ITEM_NAME, Component.translatable("buttons.close.cobblemon_raids"))
                     .onClick(() -> UIManager.closeUI((ServerPlayer) player))
                     .build();
 

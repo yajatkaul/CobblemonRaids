@@ -35,7 +35,7 @@ public record RaidDen(String name,
     public static final Codec<RaidDen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("name").forGetter(RaidDen::name),
             Level.RESOURCE_KEY_CODEC.fieldOf("denLevel").forGetter(RaidDen::denLevel),
-            Codec.STRING.fieldOf("denType").forGetter(RaidDen::denType),
+            Codec.STRING.optionalFieldOf("denType", "normal").forGetter(RaidDen::denType),
             Vec3.CODEC.fieldOf("bossSpawn").forGetter(RaidDen::bossSpawn),
             Vec3.CODEC.fieldOf("denSpawn").forGetter(RaidDen::denSpawn),
             CatchSpawn.CODEC.listOf().fieldOf("catchSpawns").forGetter(RaidDen::catchSpawns)

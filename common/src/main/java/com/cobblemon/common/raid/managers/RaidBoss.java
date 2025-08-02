@@ -138,6 +138,10 @@ public class RaidBoss {
         return this.catchLevel;
     }
 
+    public int getMaxPlayers() {
+        return this.maxPlayers;
+    }
+
     public void tick(MinecraftServer server) {
         if (server.getTickCount() % 20 == 0) {
             if (ended) {
@@ -308,6 +312,7 @@ public class RaidBoss {
 
     public void addPlayer(ServerPlayer player) {
         if (this.activePlayers.size() == this.maxPlayers || this.started) {
+            player.sendSystemMessage(Component.translatable("raid_full.cobblemon_raids"));
             return;
         }
 
