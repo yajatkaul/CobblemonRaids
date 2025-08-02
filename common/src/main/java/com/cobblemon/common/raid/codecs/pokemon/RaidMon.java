@@ -4,9 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.ExtraCodecs;
 
+import java.util.Optional;
+
 public record RaidMon(String name,
                       String pokemon,
-                      String pokemonImage,
+                      Optional<String> pokemonImage,
                       int maxHealth,
                       int catchLevel,
                       int bossLevel,
@@ -17,7 +19,7 @@ public record RaidMon(String name,
     public static final Codec<RaidMon> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("name").forGetter(RaidMon::name),
             Codec.STRING.fieldOf("pokemon").forGetter(RaidMon::pokemon),
-            Codec.STRING.fieldOf("pokemonImage").forGetter(RaidMon::pokemonImage),
+            Codec.STRING.optionalFieldOf("pokemonImage").forGetter(RaidMon::pokemonImage),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("maxHealth").forGetter(RaidMon::maxHealth),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("catchLevel").forGetter(RaidMon::catchLevel),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("bossLevel").forGetter(RaidMon::bossLevel),

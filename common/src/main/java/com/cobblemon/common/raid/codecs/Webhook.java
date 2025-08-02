@@ -51,7 +51,9 @@ public record Webhook(
         builder.setTitle(new WebhookEmbed.EmbedTitle(raidName, null));
 
         // Set image
-        builder.setImageUrl(imgUrl);
+        if(imgUrl != null){
+            builder.setImageUrl(imgUrl);
+        }
 
         // Set timestamp to now
         Instant now = Instant.now();

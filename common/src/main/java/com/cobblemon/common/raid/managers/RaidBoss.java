@@ -159,11 +159,19 @@ public class RaidBoss {
 
             removePlayer(player);
 
-            ResourceKey<LootTable> lootPool = this.defeated ? this.winLootTable : this.defeatLootTable;
-            List<ItemStack> itemStack = resolveItemsToEject((ServerLevel) player.level(), lootPool, player.getOnPos(), player);
-            ItemStack stackToGive = new ItemStack(RaidItems.RAID_LOOT);
-            stackToGive.set(RaidDataComponents.LOOT_COMPONENT.get(), itemStack);
-            RaidUtils.giveItems(player, stackToGive);
+            ResourceKey<LootTable> lootPool = null;
+            if(this.defeated && this.winLootTable != null){
+                lootPool = this.winLootTable;
+            }else if (!this.defeated && this.defeatLootTable != null){
+                lootPool = this.defeatLootTable;
+            }
+
+            if(lootPool != null){
+                List<ItemStack> itemStack = resolveItemsToEject((ServerLevel) player.level(), lootPool, player.getOnPos(), player);
+                ItemStack stackToGive = new ItemStack(RaidItems.RAID_LOOT);
+                stackToGive.set(RaidDataComponents.LOOT_COMPONENT.get(), itemStack);
+                RaidUtils.giveItems(player, stackToGive);
+            }
         }
         this.ended = true;
     }
