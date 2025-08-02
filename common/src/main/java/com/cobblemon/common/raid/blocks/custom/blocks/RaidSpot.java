@@ -4,12 +4,10 @@ import ca.landonjw.gooeylibs2.api.UIManager;
 import ca.landonjw.gooeylibs2.api.button.GooeyButton;
 import ca.landonjw.gooeylibs2.api.page.GooeyPage;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
-import com.cobblemon.common.raid.blocks.custom.blockEntities.RaidSpotEntity;
 import com.cobblemon.common.raid.managers.RaidBoss;
 import com.cobblemon.mod.common.api.pokemon.stats.Stat;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -36,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class RaidSpot extends BaseEntityBlock {
+public class RaidSpot extends Block {
     private RaidBoss raid = null;
     public static final VoxelShape SHAPE = Block.box(2, 0, 2, 14, 4, 14);
 
@@ -52,13 +50,6 @@ public class RaidSpot extends BaseEntityBlock {
     @Override
     protected RenderShape getRenderShape(BlockState blockState) {
         return RenderShape.MODEL;
-    }
-
-    public static final MapCodec<RaidSpot> CODEC = simpleCodec(RaidSpot::new);
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     public void setRaid(RaidBoss boss) {
@@ -113,12 +104,6 @@ public class RaidSpot extends BaseEntityBlock {
         }
 
         return InteractionResult.SUCCESS;
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new RaidSpotEntity(blockPos, blockState);
     }
 
     private ItemStack getPokemonItem(Pokemon pokemon) {

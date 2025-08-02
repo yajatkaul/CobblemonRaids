@@ -12,6 +12,6 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 public class CobblemonRaidsNeoClient {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        CobblemonRaidsClient.register();
+
     }
 }

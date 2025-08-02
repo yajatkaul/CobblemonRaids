@@ -1,9 +1,9 @@
 package com.cobblemon.common.raid;
 
 import com.cobblemon.common.raid.blocks.RaidBlocks;
-import com.cobblemon.common.raid.blocks.RaidEntities;
 import com.cobblemon.common.raid.config.CobblemonRaidDimConfig;
 import com.cobblemon.common.raid.config.CobblemonRaidsConfig;
+import com.cobblemon.common.raid.creativeTab.CobblemonRaidsTab;
 import com.cobblemon.common.raid.datacomponents.RaidDataComponents;
 import com.cobblemon.common.raid.datapack.DatapackRegister;
 import com.cobblemon.common.raid.events.CobbleEvents;
@@ -25,7 +25,7 @@ public final class CobblemonRaids {
 
         RaidItems.register();
 
-        RaidEntities.register();
+        CobblemonRaidsTab.register();
         CobblemonRaidsConfig.register();
         CobblemonRaidDimConfig.register();
         RaidDataComponents.register();

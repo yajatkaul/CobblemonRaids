@@ -30,7 +30,8 @@ public record RaidDen(String name,
                       String denType,
                       Vec3 bossSpawn,
                       Vec3 denSpawn,
-                      List<CatchSpawn> catchSpawns) {
+                      List<CatchSpawn> catchSpawns
+) {
     public static final Codec<RaidDen> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("name").forGetter(RaidDen::name),
             Level.RESOURCE_KEY_CODEC.fieldOf("denLevel").forGetter(RaidDen::denLevel),

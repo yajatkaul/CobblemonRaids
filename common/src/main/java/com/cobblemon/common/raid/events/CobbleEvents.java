@@ -45,7 +45,7 @@ public class CobbleEvents {
     private static Unit threwBall(ThrownPokeballHitEvent event) {
         Pokemon pokemon = event.getPokemon().getPokemon();
         PokeBall pokeBallItem = event.getPokeBall().getPokeBall();
-        PokeBall raidBall = ((PokeBallItem) RaidItems.RAID_BALL.get()).getPokeBall();
+        PokeBall raidBall = RaidItems.RAID_BALL.getPokeBall();
 
         if (pokemon.getPersistentData().contains("is_raid_boss")) {
             if (pokeBallItem != raidBall) {

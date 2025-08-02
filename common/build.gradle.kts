@@ -32,6 +32,14 @@ dependencies {
 
     modImplementation("eu.pb4:polymer-core:${property("polymer_version")}")
     include("eu.pb4:polymer-core:${property("polymer_version")}")
+
+    modImplementation("eu.pb4:polymer-resource-pack:${property("polymer_version")}")
+    include("eu.pb4:polymer-resource-pack:${property("polymer_version")}")
+
+    modImplementation("eu.pb4:polymer-blocks:${property("polymer_version")}")
+    include("eu.pb4:polymer-blocks:${property("polymer_version")}")
+
+    implementation("org.spongepowered:mixin:0.8.7")
 }
 
 tasks.getByName<Test>("test") {

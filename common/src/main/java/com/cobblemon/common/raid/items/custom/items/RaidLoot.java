@@ -25,7 +25,7 @@ public class RaidLoot extends SimplePolymerItem {
             return InteractionResultHolder.pass(itemStack);
         }
 
-        List<ItemStack> item = itemStack.getOrDefault(RaidDataComponents.LOOT_COMPONENT.get(), null);
+        List<ItemStack> item = itemStack.getOrDefault(RaidDataComponents.LOOT_COMPONENT, null);
 
         if (item == null) {
             return InteractionResultHolder.pass(itemStack);

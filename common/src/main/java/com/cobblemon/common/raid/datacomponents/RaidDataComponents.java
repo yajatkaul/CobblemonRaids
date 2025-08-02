@@ -2,25 +2,33 @@ package com.cobblemon.common.raid.datacomponents;
 
 import com.cobblemon.common.raid.CobblemonRaids;
 import com.mojang.serialization.Codec;
-import dev.architectury.registry.registries.DeferredRegister;
+import eu.pb4.polymer.core.api.other.PolymerComponent;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class RaidDataComponents {
-    private static final DeferredRegister<DataComponentType<?>> REGISTRAR = DeferredRegister.create(CobblemonRaids.MOD_ID, Registries.DATA_COMPONENT_TYPE);
 
-    public static final Supplier<DataComponentType<List<ItemStack>>> LOOT_COMPONENT = REGISTRAR.register(
-            "loot_component",
-            () -> DataComponentType.<List<ItemStack>>builder()
-                    .persistent(Codec.list(ItemStack.CODEC))
-                    .build()
-    );
+    public static final DataComponentType<List<ItemStack>> LOOT_COMPONENT = register("loot_component",
+            builder -> builder
+                    .persistent(Codec.list(ItemStack.CODEC)));
+
+    private static <T> DataComponentType<T> register (String name, UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
+        DataComponentType<T> component = Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE,
+                ResourceLocation.fromNamespaceAndPath(CobblemonRaids.MOD_ID, name),
+                builderOperator.apply(DataComponentType.builder()).build());
+        PolymerComponent.registerDataComponent(component);
+        return component;
+    }
 
     public static void register() {
-        REGISTRAR.register();
+
     }
 }

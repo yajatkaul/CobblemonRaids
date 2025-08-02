@@ -34,13 +34,43 @@ public class CobblemonRaidCommands {
         dispatcher.register(literal("raid")
                 .then(argument("cords", Vec3Argument.vec3())
                         .executes(CobblemonRaidCommands::spawnBoss))
-                .then(literal("test")
-                        .executes(CobblemonRaidCommands::createDen))
+                .then(literal("create_den")
+                        .then(argument("name", StringArgumentType.word())
+                                .then(argument("type", StringArgumentType.word())
+                                        .executes(CobblemonRaidCommands::createDenWithType))
+                                .executes(CobblemonRaidCommands::createDenDefault)))
                 .then(literal("webhook")
                         .then(argument("url", StringArgumentType.greedyString())
                                 .executes(CobblemonRaidCommands::createWebhookConnection)))
                 .then(literal("leave")
                         .executes(CobblemonRaidCommands::leaveRaid)));
+    }
+
+    private static int createDenDefault(CommandContext<CommandSourceStack> context) {
+        return createDen(context, "normal");
+    }
+
+    private static int createDenWithType(CommandContext<CommandSourceStack> context) {
+        String type = context.getArgument("type", String.class);
+        return createDen(context, type);
+    }
+
+    private static int createDen(CommandContext<CommandSourceStack> context, String type) {
+        ServerPlayer player = context.getSource().getPlayer();
+        String denName = context.getArgument("name", String.class);
+
+        CatchSpawn catchSpawn = new CatchSpawn(player.position(), player.position());
+
+        new RaidDen(
+                denName,
+                player.level().dimension(),
+                type,
+                player.position(),
+                player.position(),
+                List.of(catchSpawn)
+        ).saveToJson(context.getSource().getServer());
+
+        return 1;
     }
 
     private static int leaveRaid(CommandContext<CommandSourceStack> context) {
@@ -77,7 +107,7 @@ public class CobblemonRaidCommands {
 
         BlockPos pos = new BlockPos(x, y, z);
 
-        RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT.get();
+        RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT;
 
         player.sendSystemMessage(Component.literal(pos.toString()));
         level.setBlock(pos, raidSpot.defaultBlockState(), Block.UPDATE_ALL);
@@ -108,15 +138,6 @@ public class CobblemonRaidCommands {
         } catch (Exception e) {
             CobblemonRaids.LOGGER.info(String.valueOf(e));
         }
-
-        return 1;
-    }
-
-    private static int createDen(CommandContext<CommandSourceStack> context) {
-        ServerPlayer player = context.getSource().getPlayer();
-
-        CatchSpawn catchSpawn = new CatchSpawn(player.position(), player.position());
-        new RaidDen("example", player.level().dimension(), "test", player.position(), player.position(), List.of(catchSpawn)).saveToJson(context.getSource().getServer());
 
         return 1;
     }

@@ -137,7 +137,7 @@ public class RaidManager {
 
                 Pokemon pokemon = PokemonProperties.Companion.parse(raidData.raidMon().pokemon()).create();
 
-                RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT.get();
+                RaidSpot raidSpot = (RaidSpot) RaidBlocks.RAID_SPOT;
 
                 server.sendSystemMessage(Component.literal(pos.toString()));
                 server.sendSystemMessage(Component.literal(level.getLevel().dimension().toString()));
@@ -155,8 +155,8 @@ public class RaidManager {
                         raidData.battleDuration(),
                         raidData.prepareDuration(),
                         raidData.catchDuration(),
-                        raidData.lootTables().winLoot(),
-                        raidData.lootTables().defeatLoot(),
+                        raidData.lootTables().winLoot().orElse(null),
+                        raidData.lootTables().defeatLoot().orElse(null),
                         raidData.totalBalls(),
                         raidData.raidMon().catchLevel(),
                         raidData.raidMon().bossLevel()
@@ -166,7 +166,7 @@ public class RaidManager {
                 Webhook webhook = Webhook.loadFromJson(server);
                 if (webhook != null) {
                     RaidMon raidMon = raidData.raidMon();
-                    webhook.sendWebhook(raidMon.pokemonImage(),
+                    webhook.sendWebhook(raidMon.pokemonImage().orElse(null),
                             raidMon.name(),
                             raidData.battleDuration(),
                             pos.toString(),

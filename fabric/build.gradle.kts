@@ -16,6 +16,8 @@ loom {
     mixin {
         defaultRefmapName.set("cobblemon_raids-fabric.refmap.json")
     }
+
+    accessWidenerPath.set(file("src/main/resources/cobblemon_raids.accesswidener"))
 }
 val shadowCommon = configurations.create("shadowCommon")
 
@@ -51,6 +53,12 @@ dependencies {
 
     modImplementation("eu.pb4:polymer-core:${property("polymer_version")}")
     include("eu.pb4:polymer-core:${property("polymer_version")}")
+
+    modImplementation("eu.pb4:polymer-resource-pack:${property("polymer_version")}")
+    include("eu.pb4:polymer-resource-pack:${property("polymer_version")}")
+
+    modImplementation("eu.pb4:polymer-blocks:${property("polymer_version")}")
+    include("eu.pb4:polymer-blocks:${property("polymer_version")}")
 }
 
 tasks.getByName<Test>("test") {
